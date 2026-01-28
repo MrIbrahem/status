@@ -8,9 +8,9 @@ aggregating editor statistics from Wikipedia databases.
 from typing import Dict, List
 
 from src.database import Database
+from src.logging_config import get_logger
 from src.queries import QueryBuilder
 from src.utils import is_ip_address
-from src.logging_config import get_logger
 
 logger = get_logger(__name__)
 

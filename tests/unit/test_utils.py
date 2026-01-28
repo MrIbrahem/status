@@ -1,18 +1,19 @@
 """Unit tests for utility functions."""
 
-import pytest
+import json
 import os
 import tempfile
-import json
+
+import pytest
 
 from src.utils import (
-    is_ip_address,
+    ensure_directory,
     escape_title,
     format_number,
-    ensure_directory,
-    save_language_titles,
-    load_language_titles,
     get_available_languages,
+    is_ip_address,
+    load_language_titles,
+    save_language_titles,
 )
 
 
