@@ -31,7 +31,7 @@ class DatabaseAnalytics:
 
     def get_database_info(self, site_code: str) -> tuple[str, str]:
         pre_defined_db_mapping = {
-            "meta": ("metawiki_p", "s7.analytics.db.svc.wikimedia.cloud"),
+            "meta": ("meta_p", "s7.analytics.db.svc.wikimedia.cloud"),
         }
 
         if site_code in pre_defined_db_mapping:
@@ -42,7 +42,7 @@ class DatabaseAnalytics:
         db_mapping = get_database_mapping()
         database = db_mapping.get(site_code) or f"{site_code}wiki_p"
 
-        host_name = site_code.removesuffix("_p")
+        host_name = database.removesuffix("_p")
         host = f"{host_name}.analytics.db.svc.wikimedia.cloud"
         return database, host
 

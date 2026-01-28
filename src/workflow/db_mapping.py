@@ -64,7 +64,7 @@ def fetch_database_mapping() -> Dict[str, str]:
 
     query = query_builder.get_database_mapping()
 
-    with Database(HOST, "meta_p") as db:
+    with Database("s7.analytics.db.svc.wikimedia.cloud", "meta_p") as db:
         results = db.execute(query)
 
         for row in results:
