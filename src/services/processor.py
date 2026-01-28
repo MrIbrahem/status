@@ -11,6 +11,7 @@ from ..logging_config import get_logger
 from ..utils import is_ip_address
 from .database import Database
 from .queries import QueryBuilder
+from ..config import HOST
 
 logger = get_logger(__name__)
 
@@ -29,7 +30,7 @@ class EditorProcessor:
         logger.debug("EditorProcessor initialized")
 
     def process_language(
-        self, lang: str, titles: List[str], dbname: str, year: str, host: str = "analytics.db.svc.wikimedia.cloud"
+        self, lang: str, titles: List[str], dbname: str, year: str
     ) -> Dict[str, int]:
         """
         Process editor statistics for a specific language.
@@ -39,7 +40,6 @@ class EditorProcessor:
             titles: List of article titles in this language
             dbname: Database name (e.g., "enwiki_p")
             year: Year to filter (e.g., "2024")
-            host: Database host (default: analytics.db.svc.wikimedia.cloud)
 
         Returns:
             Dictionary mapping editor names to edit counts
@@ -64,7 +64,7 @@ class EditorProcessor:
             query = self.query_builder.get_editors_standard(titles, year)
 
         try:
-            with Database(host, dbname) as db:
+            with Database(HOST, dbname) as db:
                 results = db.execute(query)
 
                 for row in results:

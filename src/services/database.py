@@ -122,12 +122,12 @@ class Database:
 
                 # Merge config with connection parameters, avoiding duplicate port
                 connect_params = DATABASE_CONFIG.copy()
-                connect_params.pop("port", None)  # Remove port from config if present
+                # connect_params.pop("port", None)  # Remove port from config if present
 
                 self.connection = pymysql.connect(
                     host=self.host,
                     database=self.database,
-                    port=self.port,
+                    # port=self.port,
                     user=credentials["user"],
                     password=credentials["password"],
                     cursorclass=pymysql.cursors.DictCursor,

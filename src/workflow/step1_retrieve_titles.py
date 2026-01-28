@@ -4,7 +4,7 @@ Step 1: Retrieve medicine titles
 
 from typing import Dict, List
 
-from ..config import OUTPUT_DIRS
+from ..config import OUTPUT_DIRS, HOST
 from ..logging_config import get_logger
 from ..services.database import Database
 from ..services.queries import QueryBuilder
@@ -45,7 +45,7 @@ def _save_language_files(titles_by_language: Dict[str, List[str]]) -> None:
         save_language_titles(lang, titles, OUTPUT_DIRS["languages"])
 
 
-def retrieve_medicine_titles(host: str = "analytics.db.svc.wikimedia.cloud") -> Dict[str, List[str]]:
+def retrieve_medicine_titles() -> Dict[str, List[str]]:
     """
     Retrieve Medicine project articles with langlinks from enwiki.
 
@@ -64,7 +64,7 @@ def retrieve_medicine_titles(host: str = "analytics.db.svc.wikimedia.cloud") -> 
     try:
         query = query_builder.get_medicine_titles()
 
-        with Database(host, "enwiki_p") as db:
+        with Database(HOST, "enwiki_p") as db:
             results = db.execute(query)
             logger.info("Retrieved %d article-language pairs", len(results))
 

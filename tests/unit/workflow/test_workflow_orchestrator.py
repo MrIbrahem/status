@@ -14,7 +14,6 @@ class TestWorkflowOrchestrator:
     def test_orchestrator_init(self):
         """Test orchestrator initialization."""
         orchestrator = WorkflowOrchestrator()
-        assert orchestrator.host == "analytics.db.svc.wikimedia.cloud"
         assert orchestrator.query_builder is not None
         assert orchestrator.processor is not None
         assert orchestrator.report_generator is not None

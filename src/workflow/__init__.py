@@ -27,21 +27,17 @@ class WorkflowOrchestrator:
     4. Generate reports
     """
 
-    def __init__(self, host: str = "analytics.db.svc.wikimedia.cloud"):
+    def __init__(self):
         """
         Initialize the workflow orchestrator.
-
-        Args:
-            host: Database host (default: analytics.db.svc.wikimedia.cloud)
         """
-        self.host = host
         self.query_builder = QueryBuilder()
         self.processor = EditorProcessor()
         self.report_generator = ReportGenerator()
         logger.debug("WorkflowOrchestrator initialized")
 
     def get_database_mapping(self) -> dict:
-        return get_database_mapping(self.host)
+        return get_database_mapping()
 
     def process_languages(self, year: str, languages: Optional[List[str]] = None) -> dict:
         """

@@ -4,7 +4,7 @@ Step 2: Process languages
 
 from typing import Dict, List, Optional
 
-from ..config import BATCH_SIZE, OUTPUT_DIRS
+from ..config import BATCH_SIZE, OUTPUT_DIRS, HOST
 from ..logging_config import get_logger
 from ..services.database import Database
 from ..services.processor import EditorProcessor
@@ -19,7 +19,7 @@ processor = EditorProcessor()
 query_builder = QueryBuilder()
 
 
-def get_database_mapping(host: str = "analytics.db.svc.wikimedia.cloud") -> Dict[str, str]:
+def get_database_mapping() -> Dict[str, str]:
     """
     Get mapping of language codes to database names from meta_p.
 
@@ -37,7 +37,7 @@ def get_database_mapping(host: str = "analytics.db.svc.wikimedia.cloud") -> Dict
 
     query = query_builder.get_database_mapping()
 
-    with Database(host, "meta_p") as db:
+    with Database(HOST, "meta_p") as db:
         results = db.execute(query)
 
         for row in results:
@@ -104,11 +104,10 @@ def _process_titles_for_language(
     dbname: str,
     year: str,
     batch_size: int,
-    host: str = "analytics.db.svc.wikimedia.cloud",
 ) -> Dict[str, int]:
     """Process titles for a language, with batching if needed."""
     if len(titles) <= batch_size:
-        return processor.process_language(lang, titles, dbname, year, host)
+        return processor.process_language(lang, titles, dbname, year)
 
     logger.info("Processing %d titles in batches of %d", len(titles), batch_size)
     editors: Dict[str, int] = {}
@@ -117,7 +116,7 @@ def _process_titles_for_language(
         batch = titles[batch_num : batch_num + batch_size]
         logger.debug("Processing batch %d-%d", batch_num, batch_num + len(batch))
 
-        batch_editors = processor.process_language(lang, batch, dbname, year, host)
+        batch_editors = processor.process_language(lang, batch, dbname, year)
 
         # Merge batch results
         for editor, count in batch_editors.items():
