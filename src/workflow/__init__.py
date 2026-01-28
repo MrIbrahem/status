@@ -1,18 +1,16 @@
 """
 Workflow module - Multi-step processing system with resume support
 """
-from src.utils import get_available_languages, load_language_titles
-from src.reports import ReportGenerator
-from src.queries import QueryBuilder
-from src.processor import EditorProcessor
-from src.logging_config import get_logger
-from src.database import Database
-from src.config import BATCH_SIZE, OUTPUT_DIRS
-from typing import Dict, List, Optional
-from .config import WorkflowConfig
-from .runner import WorkflowRunner
-from .state_manager import StateManager
+from typing import List, Optional, Dict
+
+from ..reports import ReportGenerator
+from ..queries import QueryBuilder
+from ..processor import EditorProcessor
+from ..logging_config import get_logger
+from ..config import OUTPUT_DIRS
 from .step1_retrieve_titles import retrieve_medicine_titles
+from .step2_process_languages import process_languages
+from .step3_generate_reports import generate_reports
 
 logger = get_logger(__name__)
 
@@ -41,142 +39,17 @@ class WorkflowOrchestrator:
         self.report_generator = ReportGenerator()
         logger.debug("WorkflowOrchestrator initialized")
 
-    def get_database_mapping(self) -> Dict[str, str]:
+    def process_languages(self, year: str, languages: Optional[List[str]] = None) -> dict:
         """
-        Get mapping of language codes to database names from meta_p.
-
-        Returns:
-            Dictionary mapping language codes to database names
-
-        Example:
-            >>> orchestrator = WorkflowOrchestrator()
-            >>> mapping = orchestrator.get_database_mapping()
-            >>> # Returns: {"en": "enwiki_p", "fr": "frwiki_p", ...}
-        """
-        logger.info("Retrieving database name mappings from meta_p")
-
-        mapping: Dict[str, str] = {}
-
-        query = self.query_builder.get_database_mapping()
-
-        with Database(self.host, "meta_p") as db:
-            results = db.execute(query)
-
-            for row in results:
-                lang = row.get("lang", "")
-                dbname = row.get("dbname", "")
-
-                if lang and dbname:
-                    mapping[lang] = dbname
-
-            logger.info("✓ Retrieved mappings for %d languages", len(mapping))
-
-        return mapping
-
-    def process_languages(
-        self, year: str, languages: Optional[List[str]] = None, batch_size: int = BATCH_SIZE
-    ) -> Dict[str, Dict[str, int]]:
-        """
-        Process editor statistics for all or specified languages.
+        Process editor statistics for specified languages.
 
         Args:
             year: Year to analyze (e.g., "2024")
             languages: Optional list of specific languages to process
-            batch_size: Batch size for processing titles (default: from config)
-
         Returns:
-            Dictionary mapping language codes to editor statistics
-
-        Example:
-            >>> all_editors = orchestrator.process_languages("2024", ["en", "fr"])
+            Dictionary of all editors processed across languages
         """
-        logger.info("=" * 60)
-        logger.info("Step 2: Processing editor statistics by language")
-        logger.info("=" * 60)
-
-        db_mapping = self.get_database_mapping()
-        languages_to_process = self._get_languages_to_process(languages)
-
-        logger.info("Processing %d languages", len(languages_to_process))
-
-        all_editors: Dict[str, Dict[str, int]] = {}
-
-        for i, lang in enumerate(languages_to_process, 1):
-            self._process_single_language(lang, i, len(languages_to_process), db_mapping, year, batch_size, all_editors)
-
-        logger.info("")
-        logger.info("✓ Step 2 complete: %d languages processed", len(all_editors))
-
-        return all_editors
-
-    def _get_languages_to_process(self, languages: Optional[List[str]]) -> List[str]:
-        """Determine which languages to process."""
-        available_languages = get_available_languages(OUTPUT_DIRS["languages"])
-
-        if languages:
-            languages_to_process = [lang for lang in languages if lang in available_languages]
-            if len(languages_to_process) < len(languages):
-                missing = set(languages) - set(languages_to_process)
-                logger.warning("Requested languages not found: %s", missing)
-            return languages_to_process
-        else:
-            return available_languages
-
-    def _process_single_language(
-        self,
-        lang: str,
-        index: int,
-        total: int,
-        db_mapping: Dict[str, str],
-        year: str,
-        batch_size: int,
-        all_editors: Dict[str, Dict[str, int]],
-    ) -> None:
-        """Process a single language."""
-        logger.info("")
-        logger.info("-" * 60)
-        logger.info("Language %d/%d: %s", index, total, lang)
-        logger.info("-" * 60)
-
-        titles = load_language_titles(lang, OUTPUT_DIRS["languages"])
-
-        if lang not in db_mapping:
-            logger.warning("No database mapping for language '%s', skipping", lang)
-            return
-
-        dbname = db_mapping[lang]
-        editors = self._process_titles_for_language(lang, titles, dbname, year, batch_size)
-
-        all_editors[lang] = editors
-        self.report_generator.save_editors_json(lang, editors)
-        self.report_generator.generate_language_report(lang, editors, year)
-
-        logger.info("✓ Language '%s' complete: %d editors, %d edits", lang, len(editors), sum(editors.values()))
-
-    def _process_titles_for_language(
-        self, lang: str, titles: List[str], dbname: str, year: str, batch_size: int
-    ) -> Dict[str, int]:
-        """Process titles for a language, with batching if needed."""
-        if len(titles) <= batch_size:
-            return self.processor.process_language(lang, titles, dbname, year, self.host)
-
-        logger.info("Processing %d titles in batches of %d", len(titles), batch_size)
-        editors: Dict[str, int] = {}
-
-        for batch_num in range(0, len(titles), batch_size):
-            batch = titles[batch_num : batch_num + batch_size]
-            logger.debug("Processing batch %d-%d", batch_num, batch_num + len(batch))
-
-            batch_editors = self.processor.process_language(lang, batch, dbname, year, self.host)
-
-            # Merge batch results
-            for editor, count in batch_editors.items():
-                if editor in editors:
-                    editors[editor] += count
-                else:
-                    editors[editor] = count
-
-        return editors
+        return process_languages(year, languages)
 
     def generate_reports(self, all_editors: Dict[str, Dict[str, int]], year: str) -> None:
         """
@@ -189,13 +62,16 @@ class WorkflowOrchestrator:
         Example:
             >>> orchestrator.generate_reports(all_editors, "2024")
         """
-        logger.info("")
-        logger.info("=" * 60)
-        logger.info("Step 3: Generating global summary report")
-        logger.info("=" * 60)
+        return generate_reports(all_editors, year)
 
-        self.report_generator.generate_global_report(all_editors, year)
-        logger.info("✓ Step 3 complete")
+    def retrieve_medicine_titles(self) -> dict:
+        """
+        Retrieve medicine-related article titles from enwiki.
+
+        Returns:
+            Dictionary mapping language codes to lists of medicine titles
+        """
+        return retrieve_medicine_titles()
 
     def run_complete_workflow(self, year: str, languages: Optional[List[str]] = None) -> int:
         """
@@ -213,7 +89,7 @@ class WorkflowOrchestrator:
             >>> exit_code = orchestrator.run_complete_workflow("2024")
         """
         # Step 1: Retrieve titles
-        retrieve_medicine_titles()
+        self.retrieve_medicine_titles()
 
         # Step 2: Process languages
         all_editors = self.process_languages(year, languages)
@@ -227,7 +103,6 @@ class WorkflowOrchestrator:
         logger.info("✓ Analysis complete!")
         logger.info("=" * 60)
         logger.info("Languages processed: %d", len(all_editors))
-        logger.info("Total unique editors: %d", len(self.processor.aggregate_editors(all_editors)))
         logger.info("Reports saved to: %s/", OUTPUT_DIRS["reports"])
         logger.info("Editor data saved to: %s/", OUTPUT_DIRS["editors"])
         logger.info("=" * 60)

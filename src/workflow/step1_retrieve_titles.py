@@ -3,15 +3,13 @@ Step 1: Retrieve medicine titles
 """
 from typing import List, Dict
 
-from src.queries import QueryBuilder
-from src.logging_config import get_logger
-from src.database import Database
-from src.config import OUTPUT_DIRS
-from src.utils import save_language_titles
+from ..queries import QueryBuilder
+from ..logging_config import get_logger
+from ..database import Database
+from ..config import OUTPUT_DIRS
+from ..utils import save_language_titles
 
 logger = get_logger(__name__)
-
-STEP_NUMBER = 1
 
 
 def _organize_titles_by_language(results: List[Dict]) -> Dict[str, List[str]]:
@@ -79,3 +77,8 @@ def retrieve_medicine_titles(host: str = "analytics.db.svc.wikimedia.cloud") -> 
         raise
 
     return titles_by_language
+
+
+__all__ = [
+    "retrieve_medicine_titles",
+]

@@ -1,125 +1,171 @@
 """
 Step 2: Process languages
 """
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Optional
 
-from .config import WorkflowConfig
-from .state_manager import StateManager
+from ..utils import get_available_languages, load_language_titles
+from ..logging_config import get_logger
+from ..database import Database
+from ..config import BATCH_SIZE, OUTPUT_DIRS
+from ..reports import ReportGenerator
+from ..queries import QueryBuilder
+from ..processor import EditorProcessor
 
-STEP_NUMBER = 2
+logger = get_logger(__name__)
+
+processor = EditorProcessor()
+
+query_builder = QueryBuilder()
 
 
-def run(
-    state_manager: StateManager,
-    year: int,
-    languages: List[str],
-    titles: Optional[List[str]] = None,
-    force: bool = False
-) -> Dict[str, Any]:
+def get_database_mapping(host: str = "analytics.db.svc.wikimedia.cloud") -> Dict[str, str]:
     """
-    Execute the language processing step
-    
-    Args:
-        state_manager: State manager instance
-        year: Target year
-        languages: List of language codes
-        titles: Titles from step 1 (optional, loaded from state if not provided)
-        force: Force re-execution
-    
+    Get mapping of language codes to database names from meta_p.
+
     Returns:
-        Dictionary of editors per language
+        Dictionary mapping language codes to database names
+
+    Example:
+        >>> orchestrator = WorkflowOrchestrator()
+        >>> mapping = orchestrator.get_database_mapping()
+        >>> # Returns: {"en": "enwiki_p", "fr": "frwiki_p", ...}
     """
-    step_config = WorkflowConfig.get_step(STEP_NUMBER)
-    
-    # Check if already completed
-    if not force and state_manager.is_step_completed(STEP_NUMBER):
-        print(f"[Step {STEP_NUMBER}] Already completed, loading cached results...")
-        return state_manager.get_step_data(STEP_NUMBER)
-    
-    # Verify previous step is completed
-    if not state_manager.is_step_completed(1):
-        raise RuntimeError("Step 1 must be completed before running Step 2")
-    
-    # Load titles from state if not provided
-    if titles is None:
-        titles = state_manager.get_step_data(1)
-    
-    print(f"[Step {STEP_NUMBER}] Starting: {step_config.name}")
-    print(f"[Step {STEP_NUMBER}] Processing {len(languages)} languages...")
-    state_manager.mark_step_started(STEP_NUMBER)
-    
-    try:
-        all_editors = _process_languages(year, languages, titles, state_manager)
-        
-        state_manager.clear_partial_data(STEP_NUMBER)
-        state_manager.mark_step_completed(STEP_NUMBER, all_editors)
-        
-        print(f"[Step {STEP_NUMBER}] Completed")
-        return all_editors
-        
-    except Exception as e:
-        state_manager.log_error(STEP_NUMBER, str(e))
-        raise
+    logger.info("Retrieving database name mappings from meta_p")
+
+    mapping: Dict[str, str] = {}
+
+    query = query_builder.get_database_mapping()
+
+    with Database(host, "meta_p") as db:
+        results = db.execute(query)
+
+        for row in results:
+            lang = row.get("lang", "")
+            dbname = row.get("dbname", "")
+
+            if lang and dbname:
+                mapping[lang] = dbname
+
+        logger.info("✓ Retrieved mappings for %d languages", len(mapping))
+
+    return mapping
 
 
-def _process_languages(
-    year: int,
-    languages: List[str],
-    titles: List[str],
-    state_manager: StateManager
-) -> Dict[str, Any]:
+def _get_languages_to_process(languages: Optional[List[str]]) -> List[str]:
+    """Determine which languages to process."""
+    available_languages = get_available_languages(OUTPUT_DIRS["languages"])
+
+    if languages:
+        languages_to_process = [lang for lang in languages if lang in available_languages]
+        if len(languages_to_process) < len(languages):
+            missing = set(languages) - set(languages_to_process)
+            logger.warning("Requested languages not found: %s", missing)
+        return languages_to_process
+    else:
+        return available_languages
+
+
+def _process_single_language(
+    lang: str,
+    index: int,
+    total: int,
+    db_mapping: Dict[str, str],
+    year: str,
+    batch_size: int,
+    all_editors: Dict[str, Dict[str, int]],
+) -> None:
+    """Process a single language."""
+    report_generator = ReportGenerator()
+    logger.info("")
+    logger.info("-" * 60)
+    logger.info("Language %d/%d: %s", index, total, lang)
+    logger.info("-" * 60)
+
+    titles = load_language_titles(lang, OUTPUT_DIRS["languages"])
+
+    if lang not in db_mapping:
+        logger.warning("No database mapping for language '%s', skipping", lang)
+        return
+
+    dbname = db_mapping[lang]
+    editors = _process_titles_for_language(lang, titles, dbname, year, batch_size)
+
+    all_editors[lang] = editors
+    report_generator.save_editors_json(lang, editors)
+    report_generator.generate_language_report(lang, editors, year)
+
+    logger.info("✓ Language '%s' complete: %d editors, %d edits", lang, len(editors), sum(editors.values()))
+
+
+def _process_titles_for_language(
+    lang: str, titles: List[str],
+    dbname: str,
+    year: str,
+    batch_size: int,
+    host: str = "analytics.db.svc.wikimedia.cloud",
+) -> Dict[str, int]:
+    """Process titles for a language, with batching if needed."""
+    if len(titles) <= batch_size:
+        return processor.process_language(lang, titles, dbname, year, host)
+
+    logger.info("Processing %d titles in batches of %d", len(titles), batch_size)
+    editors: Dict[str, int] = {}
+
+    for batch_num in range(0, len(titles), batch_size):
+        batch = titles[batch_num : batch_num + batch_size]
+        logger.debug("Processing batch %d-%d", batch_num, batch_num + len(batch))
+
+        batch_editors = processor.process_language(lang, batch, dbname, year, host)
+
+        # Merge batch results
+        for editor, count in batch_editors.items():
+            if editor in editors:
+                editors[editor] += count
+            else:
+                editors[editor] = count
+
+    return editors
+
+
+def process_languages(
+    year: str,
+    languages: Optional[List[str]] = None,
+    batch_size: int = BATCH_SIZE
+) -> Dict[str, Dict[str, int]]:
     """
-    Core logic for processing languages
-    Supports partial resumption per language
+    Process editor statistics for all or specified languages.
+
+    Args:
+        year: Year to analyze (e.g., "2024")
+        languages: Optional list of specific languages to process
+        batch_size: Batch size for processing titles (default: from config)
+
+    Returns:
+        Dictionary mapping language codes to editor statistics
+
+    Example:
+        >>> all_editors = orchestrator.process_languages("2024", ["en", "fr"])
     """
-    # Load partial progress
-    partial = state_manager.get_partial_data(STEP_NUMBER) or {
-        "processed": [],
-        "editors": {}
-    }
-    
-    processed_langs = partial["processed"]
-    all_editors = partial["editors"]
-    
-    for lang in languages:
-        # Skip already processed languages
-        if lang in processed_langs:
-            print(f"  [Skip] {lang} (already processed)")
-            continue
-        
-        print(f"  [Processing] {lang}")
-        
-        try:
-            # TODO: Implement actual language processing logic here
-            editors_for_lang = _process_single_language(lang, year, titles)
-            
-            all_editors[lang] = editors_for_lang
-            processed_langs.append(lang)
-            
-            # Save checkpoint after each language
-            state_manager.set_partial_data(STEP_NUMBER, {
-                "processed": processed_langs,
-                "editors": all_editors
-            })
-            
-        except Exception as e:
-            print(f"  [Error] {lang}: {e}")
-            raise
-    
+    logger.info("=" * 60)
+    logger.info("Step 2: Processing editor statistics by language")
+    logger.info("=" * 60)
+
+    db_mapping = get_database_mapping()
+    languages_to_process = _get_languages_to_process(languages)
+
+    logger.info("Processing %d languages", len(languages_to_process))
+
+    all_editors: Dict[str, Dict[str, int]] = {}
+
+    for i, lang in enumerate(languages_to_process, 1):
+        _process_single_language(lang, i, len(languages_to_process), db_mapping, year, batch_size, all_editors)
+
+    logger.info("")
+    logger.info("✓ Step 2 complete: %d languages processed", len(all_editors))
+
     return all_editors
 
 
-def _process_single_language(lang: str, year: int, titles: List[str]) -> Dict[str, Any]:
-    """
-    Process a single language
-    
-    Args:
-        lang: Language code
-        year: Target year
-        titles: List of titles to process
-    
-    Returns:
-        Editor data for this language
-    """
-    # TODO: Implement actual processing logic
-    return {}
+__all__ = [
+    "process_languages",
+]
