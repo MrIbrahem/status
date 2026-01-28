@@ -8,7 +8,7 @@ A Python application to retrieve and analyze editor contributions across Wikiped
 
 Before starting implementation, review:
 
-- **Project Setup**: `plans/setup.md` - All config files
+- **Project Setup**: `project_setup_configuration.md` - All config files
 - **Claude Guidance**: `.claude/` directory - AI assistance best practices
 - **Color Logging**: `.claude/context/color_logging_guide.md` - Logging implementation
 - **Architecture**: `.claude/context/architecture.md` - System design
@@ -82,7 +82,7 @@ wikipedia-medicine/
 
 ### Phase 1: Setup & Configuration ✅
 
-**Files to create first** (from `plans/setup.md`):
+**Files to create first** (from `project_setup_configuration.md`):
 
 1. **Directory structure**
    ```bash
@@ -293,11 +293,12 @@ Application configuration.
 
 All configuration constants for the Wikipedia Medicine project.
 """
+from datetime import datetime
 from typing import Dict, Any
 
-# Years
-LAST_YEAR: str = "2024"
-CURRENT_YEAR: str = "2025"
+# Years (dynamically calculated)
+CURRENT_YEAR: str = str(datetime.now().year)
+LAST_YEAR: str = str(datetime.now().year - 1)
 
 # Processing
 BATCH_SIZE: int = 100
