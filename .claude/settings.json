@@ -1,0 +1,269 @@
+{
+  "project": {
+    "name": "wikipedia-medicine",
+    "description": "Wikipedia Medicine project editor analysis tool",
+    "version": "1.0.0",
+    "language": "python",
+    "python_version": "3.9+"
+  },
+  
+  "code_style": {
+    "formatter": "black",
+    "line_length": 120,
+    "import_sorter": "isort",
+    "linter": "flake8",
+    "type_checker": "mypy",
+    "docstring_style": "google"
+  },
+  
+  "testing": {
+    "framework": "pytest",
+    "coverage_threshold": 80,
+    "markers": ["unit", "integration", "slow", "db", "network"],
+    "mock_library": "pytest-mock"
+  },
+  
+  "database": {
+    "driver": "pymysql",
+    "charset": "utf8mb4",
+    "credential_file": "~/replica.my.cnf",
+    "connection_pattern": "{dbname}.analytics.db.svc.wikimedia.cloud",
+    "database_pattern": "{dbname}_p",
+    "port": 3306,
+    "max_connections": 5,
+    "batch_size": 100
+  },
+  
+  "project_structure": {
+    "source_directory": "src",
+    "test_directory": "tests",
+    "output_directories": {
+      "languages": "languages",
+      "editors": "editors",
+      "reports": "reports"
+    }
+  },
+  
+  "modules": {
+    "database": {
+      "file": "src/database.py",
+      "purpose": "Database connection management with context managers",
+      "key_classes": ["Database"],
+      "responsibilities": [
+        "Connection pooling",
+        "Credential loading",
+        "Query execution",
+        "Error handling and retries"
+      ]
+    },
+    "queries": {
+      "file": "src/queries.py",
+      "purpose": "SQL query templates and builders",
+      "key_classes": ["QueryBuilder"],
+      "responsibilities": [
+        "Query template management",
+        "SQL escaping",
+        "Language-specific queries",
+        "Parameter substitution"
+      ]
+    },
+    "processor": {
+      "file": "src/processor.py",
+      "purpose": "Data processing and aggregation",
+      "key_classes": ["EditorProcessor"],
+      "responsibilities": [
+        "Editor statistics aggregation",
+        "IP address filtering",
+        "Bot account detection",
+        "Batch processing"
+      ]
+    },
+    "reports": {
+      "file": "src/reports.py",
+      "purpose": "WikiText report generation",
+      "key_classes": ["ReportGenerator"],
+      "responsibilities": [
+        "Per-language report creation",
+        "Global summary generation",
+        "WikiText formatting",
+        "File output"
+      ]
+    },
+    "utils": {
+      "file": "src/utils.py",
+      "purpose": "Utility functions",
+      "key_functions": [
+        "is_ip_address",
+        "escape_title",
+        "format_number"
+      ]
+    },
+    "config": {
+      "file": "src/config.py",
+      "purpose": "Application configuration",
+      "key_constants": [
+        "LAST_YEAR",
+        "CURRENT_YEAR",
+        "BATCH_SIZE",
+        "MAX_CONNECTIONS"
+      ]
+    },
+    "main": {
+      "file": "src/main.py",
+      "purpose": "Application entry point and orchestration",
+      "key_functions": ["main"],
+      "responsibilities": [
+        "CLI argument parsing",
+        "Logging setup",
+        "Workflow orchestration",
+        "Error handling"
+      ]
+    }
+  },
+  
+  "workflow_steps": [
+    {
+      "step": 1,
+      "name": "retrieve_medicine_titles",
+      "database": "enwiki_p",
+      "output": "languages/{lang}.json",
+      "description": "Query Medicine project articles and langlinks"
+    },
+    {
+      "step": 2,
+      "name": "get_database_mapping",
+      "database": "meta_p",
+      "output": "memory (dict)",
+      "description": "Map language codes to database names"
+    },
+    {
+      "step": 3,
+      "name": "get_editor_statistics",
+      "database": "{lang}wiki_p",
+      "output": "editors/{lang}.json",
+      "description": "Query editor contributions per language",
+      "special_cases": {
+        "ar": "Use project assessment query",
+        "en": "Use templatelinks query"
+      }
+    },
+    {
+      "step": 4,
+      "name": "generate_language_reports",
+      "database": null,
+      "output": "reports/{lang}.wiki",
+      "description": "Create WikiText tables per language"
+    },
+    {
+      "step": 5,
+      "name": "generate_global_report",
+      "database": null,
+      "output": "reports/total_report.wiki",
+      "description": "Create global summary across all languages"
+    }
+  ],
+  
+  "conventions": {
+    "naming": {
+      "functions": "snake_case",
+      "classes": "PascalCase",
+      "constants": "UPPER_SNAKE_CASE",
+      "private_methods": "_prefixed_snake_case",
+      "test_files": "test_*.py",
+      "test_functions": "test_*"
+    },
+    "imports": {
+      "order": ["standard_library", "third_party", "local"],
+      "style": "grouped with blank lines"
+    },
+    "error_handling": {
+      "prefer": "specific exceptions",
+      "avoid": "bare except clauses",
+      "logging": "always log errors with context",
+      "retries": "max 3 attempts for transient errors"
+    },
+    "database": {
+      "connections": "always use context managers",
+      "sql_escaping": "use pymysql.converters.escape_string()",
+      "batch_size": 100,
+      "timeout": 30
+    }
+  },
+  
+  "special_cases": {
+    "arabic_wikipedia": {
+      "lang_code": "ar",
+      "query_type": "project_assessment",
+      "reason": "Use pap_project_title directly instead of langlinks"
+    },
+    "english_wikipedia": {
+      "lang_code": "en",
+      "query_type": "templatelinks",
+      "reason": "Use WikiProject Medicine templatelinks instead of langlinks"
+    },
+    "ip_filtering": {
+      "patterns": ["IPv4: \\d+\\.\\d+\\.\\d+\\.\\d+", "IPv6: complex pattern"],
+      "action": "skip these editors"
+    },
+    "bot_filtering": {
+      "pattern": "case-insensitive 'bot' in username",
+      "action": "skip these editors"
+    }
+  },
+  
+  "logging": {
+    "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    "levels": {
+      "DEBUG": "Detailed execution flow",
+      "INFO": "Progress and milestones",
+      "WARNING": "Recoverable issues",
+      "ERROR": "Failures requiring attention"
+    },
+    "file": "wikipedia_medicine.log"
+  },
+  
+  "dependencies": {
+    "production": [
+      "pymysql==1.1.1",
+      "cryptography==42.0.5",
+      "python-dotenv==1.0.1",
+      "colorlog==6.8.2",
+      "typing-extensions==4.11.0"
+    ],
+    "development": [
+      "pytest==8.1.1",
+      "pytest-cov==5.0.0",
+      "pytest-mock==3.14.0",
+      "black==24.3.0",
+      "flake8==7.0.0",
+      "isort==5.13.2",
+      "pylint==3.1.0",
+      "mypy==1.9.0"
+    ]
+  },
+  
+  "claude_preferences": {
+    "code_explanations": "explain complex logic inline",
+    "type_hints": "always include for public functions",
+    "docstrings": "include for all public functions and classes",
+    "error_messages": "provide context and suggestions",
+    "refactoring": "suggest improvements when reviewing code",
+    "testing": "remind about test coverage",
+    "security": "highlight potential SQL injection or connection leaks",
+    "performance": "suggest optimizations for database queries"
+  },
+  
+  "common_prompts": {
+    "debugging": "See .claude/prompts/debugging.md",
+    "code_review": "See .claude/prompts/code_review.md",
+    "refactoring": "See .claude/prompts/refactoring.md",
+    "testing": "See .claude/prompts/testing.md"
+  },
+  
+  "reference_docs": {
+    "architecture": ".claude/context/architecture.md",
+    "database_schema": ".claude/context/database_schema.md",
+    "conventions": ".claude/context/conventions.md",
+    "examples": ".claude/examples/"
+  }
+}
