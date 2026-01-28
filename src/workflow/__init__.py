@@ -1,19 +1,18 @@
 """
-Workflow orchestration for Wikipedia Medicine Editor Analysis.
-
-This module provides the WorkflowOrchestrator class that coordinates
-the complete data pipeline from retrieving titles to generating reports.
+Workflow module - Multi-step processing system with resume support
 """
-
-from typing import Dict, List, Optional
-
-from src.config import BATCH_SIZE, OUTPUT_DIRS
-from src.database import Database
-from src.logging_config import get_logger
-from src.processor import EditorProcessor
-from src.queries import QueryBuilder
+from src.utils import get_available_languages, load_language_titles
 from src.reports import ReportGenerator
-from src.utils import get_available_languages, load_language_titles, save_language_titles
+from src.queries import QueryBuilder
+from src.processor import EditorProcessor
+from src.logging_config import get_logger
+from src.database import Database
+from src.config import BATCH_SIZE, OUTPUT_DIRS
+from typing import Dict, List, Optional
+from .config import WorkflowConfig
+from .runner import WorkflowRunner
+from .state_manager import StateManager
+from .step1_retrieve_titles import retrieve_medicine_titles
 
 logger = get_logger(__name__)
 
@@ -42,70 +41,6 @@ class WorkflowOrchestrator:
         self.report_generator = ReportGenerator()
         logger.debug("WorkflowOrchestrator initialized")
 
-    def retrieve_medicine_titles(self) -> Dict[str, List[str]]:
-        """
-        Retrieve Medicine project articles with langlinks from enwiki.
-
-        Returns:
-            Dictionary mapping language codes to lists of article titles
-
-        Example:
-            >>> orchestrator = WorkflowOrchestrator()
-            >>> titles = orchestrator.retrieve_medicine_titles()
-            >>> # Returns: {"en": ["Medicine"], "fr": ["Médecine"], ...}
-        """
-        logger.info("=" * 60)
-        logger.info("Step 1: Retrieving Medicine articles from enwiki")
-        logger.info("=" * 60)
-
-        try:
-            query = self.query_builder.get_medicine_titles()
-
-            with Database(self.host, "enwiki_p") as db:
-                results = db.execute(query)
-                logger.info("Retrieved %d article-language pairs", len(results))
-
-                titles_by_language = self._organize_titles_by_language(results)
-                self._save_language_files(titles_by_language)
-
-                logger.info("✓ Found %d languages with %d total articles", len(titles_by_language), len(results))
-
-        except Exception as e:
-            logger.error("Failed to retrieve medicine titles: %s", str(e), exc_info=True)
-            raise
-
-        return titles_by_language
-
-    def _organize_titles_by_language(self, results: List[Dict]) -> Dict[str, List[str]]:
-        """Organize query results by language."""
-        titles_by_language: Dict[str, List[str]] = {}
-
-        # Process langlinks
-        for row in results:
-            lang = row.get("ll_lang", "")
-            title = row.get("ll_title", "")
-
-            if lang and title:
-                if lang not in titles_by_language:
-                    titles_by_language[lang] = []
-                titles_by_language[lang].append(title)
-
-        # Add English titles
-        for row in results:
-            en_title = row.get("page_title", "")
-            if en_title:
-                if "en" not in titles_by_language:
-                    titles_by_language["en"] = []
-                if en_title not in titles_by_language["en"]:
-                    titles_by_language["en"].append(en_title)
-
-        return titles_by_language
-
-    def _save_language_files(self, titles_by_language: Dict[str, List[str]]) -> None:
-        """Save title lists to language files."""
-        for lang, titles in titles_by_language.items():
-            save_language_titles(lang, titles, OUTPUT_DIRS["languages"])
-
     def get_database_mapping(self) -> Dict[str, str]:
         """
         Get mapping of language codes to database names from meta_p.
@@ -122,24 +57,19 @@ class WorkflowOrchestrator:
 
         mapping: Dict[str, str] = {}
 
-        try:
-            query = self.query_builder.get_database_mapping()
+        query = self.query_builder.get_database_mapping()
 
-            with Database(self.host, "meta_p") as db:
-                results = db.execute(query)
+        with Database(self.host, "meta_p") as db:
+            results = db.execute(query)
 
-                for row in results:
-                    lang = row.get("lang", "")
-                    dbname = row.get("dbname", "")
+            for row in results:
+                lang = row.get("lang", "")
+                dbname = row.get("dbname", "")
 
-                    if lang and dbname:
-                        mapping[lang] = dbname
+                if lang and dbname:
+                    mapping[lang] = dbname
 
-                logger.info("✓ Retrieved mappings for %d languages", len(mapping))
-
-        except Exception as e:
-            logger.error("Failed to retrieve database mapping: %s", str(e), exc_info=True)
-            raise
+            logger.info("✓ Retrieved mappings for %d languages", len(mapping))
 
         return mapping
 
@@ -208,24 +138,20 @@ class WorkflowOrchestrator:
         logger.info("Language %d/%d: %s", index, total, lang)
         logger.info("-" * 60)
 
-        try:
-            titles = load_language_titles(lang, OUTPUT_DIRS["languages"])
+        titles = load_language_titles(lang, OUTPUT_DIRS["languages"])
 
-            if lang not in db_mapping:
-                logger.warning("No database mapping for language '%s', skipping", lang)
-                return
+        if lang not in db_mapping:
+            logger.warning("No database mapping for language '%s', skipping", lang)
+            return
 
-            dbname = db_mapping[lang]
-            editors = self._process_titles_for_language(lang, titles, dbname, year, batch_size)
+        dbname = db_mapping[lang]
+        editors = self._process_titles_for_language(lang, titles, dbname, year, batch_size)
 
-            all_editors[lang] = editors
-            self.report_generator.save_editors_json(lang, editors)
-            self.report_generator.generate_language_report(lang, editors, year)
+        all_editors[lang] = editors
+        self.report_generator.save_editors_json(lang, editors)
+        self.report_generator.generate_language_report(lang, editors, year)
 
-            logger.info("✓ Language '%s' complete: %d editors, %d edits", lang, len(editors), sum(editors.values()))
-
-        except Exception as e:
-            logger.error("Failed to process language '%s': %s", lang, str(e), exc_info=True)
+        logger.info("✓ Language '%s' complete: %d editors, %d edits", lang, len(editors), sum(editors.values()))
 
     def _process_titles_for_language(
         self, lang: str, titles: List[str], dbname: str, year: str, batch_size: int
@@ -268,13 +194,8 @@ class WorkflowOrchestrator:
         logger.info("Step 3: Generating global summary report")
         logger.info("=" * 60)
 
-        try:
-            self.report_generator.generate_global_report(all_editors, year)
-            logger.info("✓ Step 3 complete")
-
-        except Exception as e:
-            logger.error("Failed to generate global report: %s", str(e), exc_info=True)
-            raise
+        self.report_generator.generate_global_report(all_editors, year)
+        logger.info("✓ Step 3 complete")
 
     def run_complete_workflow(self, year: str, languages: Optional[List[str]] = None) -> int:
         """
@@ -291,29 +212,24 @@ class WorkflowOrchestrator:
             >>> orchestrator = WorkflowOrchestrator()
             >>> exit_code = orchestrator.run_complete_workflow("2024")
         """
-        try:
-            # Step 1: Retrieve titles
-            self.retrieve_medicine_titles()
+        # Step 1: Retrieve titles
+        retrieve_medicine_titles()
 
-            # Step 2: Process languages
-            all_editors = self.process_languages(year, languages)
+        # Step 2: Process languages
+        all_editors = self.process_languages(year, languages)
 
-            # Step 3: Generate global report
-            self.generate_reports(all_editors, year)
+        # Step 3: Generate global report
+        self.generate_reports(all_editors, year)
 
-            # Final summary
-            logger.info("")
-            logger.info("=" * 60)
-            logger.info("✓ Analysis complete!")
-            logger.info("=" * 60)
-            logger.info("Languages processed: %d", len(all_editors))
-            logger.info("Total unique editors: %d", len(self.processor.aggregate_editors(all_editors)))
-            logger.info("Reports saved to: %s/", OUTPUT_DIRS["reports"])
-            logger.info("Editor data saved to: %s/", OUTPUT_DIRS["editors"])
-            logger.info("=" * 60)
+        # Final summary
+        logger.info("")
+        logger.info("=" * 60)
+        logger.info("✓ Analysis complete!")
+        logger.info("=" * 60)
+        logger.info("Languages processed: %d", len(all_editors))
+        logger.info("Total unique editors: %d", len(self.processor.aggregate_editors(all_editors)))
+        logger.info("Reports saved to: %s/", OUTPUT_DIRS["reports"])
+        logger.info("Editor data saved to: %s/", OUTPUT_DIRS["editors"])
+        logger.info("=" * 60)
 
-            return 0
-
-        except Exception as e:
-            logger.error("Workflow failed: %s", str(e), exc_info=True)
-            return 1
+        return 0
