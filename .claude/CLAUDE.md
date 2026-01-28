@@ -6,20 +6,22 @@ This directory contains configuration files and guidelines for using Claude AI a
 
 ```
 .claude/
-├── CLAUDE.md              # Main documentation for working with Claude
-├── settings.json          # Claude-specific project settings
-├── prompts/               # Reusable prompt templates
+├── README.md                      
+├── CLAUDE.md                      # Main guide for working with Claude
+├── settings.json                  # Project configuration for Claude
+├── prompts/
 │   ├── code_review.md
 │   ├── debugging.md
 │   ├── refactoring.md
-│   └── testing.md
-├── context/               # Project context for Claude
-│   ├── architecture.md
-│   ├── database_schema.md
-│   └── conventions.md
-└── examples/              # Example interactions
-    ├── good_prompts.md
-    └── bad_prompts.md
+│   ├── testing.md
+│   └── templates.md               # Reusable prompt templates
+├── context/
+│   ├── architecture.md            # Project architecture documentation
+│   ├── database_schema.md         # Database schema reference
+│   ├── conventions.md             # Coding standards and conventions
+│   └── color_logging_guide.md     # Color logging implementation guide
+└── examples/
+    └── prompt_examples.md         # Examples of good vs bad prompts
 ```
 
 ---
