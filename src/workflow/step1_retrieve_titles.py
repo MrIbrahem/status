@@ -49,9 +49,6 @@ def fetch_medicine_titles() -> List[Dict[str, Any]]:
     """
     Retrieve Medicine project articles with langlinks from enwiki.
     """
-    logger.info("=" * 60)
-    logger.info("Step 1: Retrieving Medicine articles from enwiki")
-    logger.info("=" * 60)
     query_builder = QueryBuilder()
     try:
         query = query_builder.get_medicine_titles()
