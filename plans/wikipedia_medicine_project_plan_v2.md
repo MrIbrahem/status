@@ -8,7 +8,7 @@ A Python application to retrieve and analyze editor contributions across Wikiped
 
 Before starting implementation, review:
 
-- **Project Setup**: `project_setup_configuration.md` - All config files
+- **Project Setup**: `plans/setup.md` - All config files
 - **Claude Guidance**: `.claude/` directory - AI assistance best practices
 - **Color Logging**: `.claude/context/color_logging_guide.md` - Logging implementation
 - **Architecture**: `.claude/context/architecture.md` - System design
@@ -82,7 +82,7 @@ wikipedia-medicine/
 
 ### Phase 1: Setup & Configuration ✅
 
-**Files to create first** (from `project_setup_configuration.md`):
+**Files to create first** (from `plans/setup.md`):
 
 1. **Directory structure**
    ```bash
