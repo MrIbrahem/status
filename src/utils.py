@@ -120,9 +120,13 @@ def save_titles_sql_results(titles: List[str], output_dir: Path) -> None:
     """
     ensure_directory(output_dir)
     output_file = Path(output_dir) / "medicine_titles.json"
-
-    with open(output_file, "w", encoding="utf-8") as f:
-        json.dump(titles, f, ensure_ascii=False, indent=2)
+    try:
+        with open(output_file, "w", encoding="utf-8") as f:
+            json.dump(titles, f, ensure_ascii=False, indent=2)
+    except Exception:
+        logger.warning("Error saving titles to %s", output_file)
+        with open(output_file.with_suffix(".text"), "w", encoding="utf-8") as f:
+            f.write(str(titles))
 
     logger.debug("Saved %d titles to %s", len(titles), output_file)
 
