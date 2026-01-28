@@ -14,7 +14,8 @@ This directory contains configuration files, documentation, and best practices f
 ├── context/
 │   ├── architecture.md            # Project architecture documentation
 │   ├── database_schema.md         # Database schema reference
-│   └── conventions.md             # Coding standards and conventions
+│   ├── conventions.md             # Coding standards and conventions
+│   └── color_logging_guide.md     # Color logging implementation guide  ← ADD THIS
 └── examples/
     └── prompt_examples.md         # Examples of good vs bad prompts
 ```
