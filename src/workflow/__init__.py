@@ -9,7 +9,7 @@ from ..processor import EditorProcessor
 from ..logging_config import get_logger
 from ..config import OUTPUT_DIRS
 from .step1_retrieve_titles import retrieve_medicine_titles
-from .step2_process_languages import process_languages
+from .step2_process_languages import process_languages, get_database_mapping
 from .step3_generate_reports import generate_reports
 
 logger = get_logger(__name__)
@@ -38,6 +38,9 @@ class WorkflowOrchestrator:
         self.processor = EditorProcessor()
         self.report_generator = ReportGenerator()
         logger.debug("WorkflowOrchestrator initialized")
+
+    def get_database_mapping(self) -> dict:
+        return get_database_mapping(self.host)
 
     def process_languages(self, year: str, languages: Optional[List[str]] = None) -> dict:
         """
