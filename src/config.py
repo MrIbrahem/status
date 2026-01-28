@@ -7,7 +7,9 @@ import os
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict
+from dotenv import load_dotenv
 
+load_dotenv()
 # Years (dynamically calculated)
 LAST_YEAR: str = str(datetime.now().year - 1)
 
