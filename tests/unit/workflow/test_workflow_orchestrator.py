@@ -31,7 +31,6 @@ class TestWorkflowOrchestrator:
         mock_db_context.__enter__ = mocker.Mock(return_value=mock_db)
         mock_db_context.__exit__ = mocker.Mock(return_value=None)
 
-        # mocker.patch("src.workflow.step1_retrieve_titles.Database", return_value=mock_db_context)
         mocker.patch("src.workflow.db_mapping.Database", return_value=mock_db_context)
 
         orchestrator = WorkflowOrchestrator()
@@ -53,9 +52,9 @@ class TestWorkflowOrchestrator:
         mock_db_context.__enter__ = mocker.Mock(return_value=mock_db)
         mock_db_context.__exit__ = mocker.Mock(return_value=None)
 
-        mocker.patch("src.workflow.step1_retrieve_titles.Database", return_value=mock_db_context)
+        mocker.patch("src.workflow.step1_retrieve_titles.DatabaseAnalytics", return_value=mock_db_context)
         mocker.patch("src.workflow.step2_process_languages.Database", return_value=mock_db_context)
-        mocker.patch("src.services.processor.Database", return_value=mock_db_context)
+        mocker.patch("src.services.processor.DatabaseAnalytics", return_value=mock_db_context)
         mocker.patch("src.workflow.step2_process_languages.get_available_languages", return_value=["en"])
         mocker.patch("src.workflow.step2_process_languages.load_language_titles", return_value=["Medicine"])
 
