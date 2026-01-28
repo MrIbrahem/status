@@ -10,6 +10,10 @@ This directory contains configuration files, documentation, and best practices f
 ├── CLAUDE.md                      # Main guide for working with Claude
 ├── settings.json                  # Project configuration for Claude
 ├── prompts/
+│   ├── code_review.md
+│   ├── debugging.md
+│   ├── refactoring.md
+│   ├── testing.md
 │   └── templates.md               # Reusable prompt templates
 ├── context/
 │   ├── architecture.md            # Project architecture documentation
