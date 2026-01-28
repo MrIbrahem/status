@@ -1,12 +1,13 @@
 """
 Step 1: Retrieve medicine titles
 """
-from typing import List, Dict
 
-from ..queries import QueryBuilder
-from ..logging_config import get_logger
-from ..database import Database
+from typing import Dict, List
+
 from ..config import OUTPUT_DIRS
+from ..database import Database
+from ..logging_config import get_logger
+from ..queries import QueryBuilder
 from ..utils import save_language_titles
 
 logger = get_logger(__name__)

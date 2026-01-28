@@ -1,15 +1,16 @@
 """
 Step 2: Process languages
 """
-from typing import List, Dict, Optional
 
-from ..utils import get_available_languages, load_language_titles
-from ..logging_config import get_logger
-from ..database import Database
+from typing import Dict, List, Optional
+
 from ..config import BATCH_SIZE, OUTPUT_DIRS
-from ..reports import ReportGenerator
-from ..queries import QueryBuilder
+from ..database import Database
+from ..logging_config import get_logger
 from ..processor import EditorProcessor
+from ..queries import QueryBuilder
+from ..reports import ReportGenerator
+from ..utils import get_available_languages, load_language_titles
 
 logger = get_logger(__name__)
 
@@ -98,7 +99,8 @@ def _process_single_language(
 
 
 def _process_titles_for_language(
-    lang: str, titles: List[str],
+    lang: str,
+    titles: List[str],
     dbname: str,
     year: str,
     batch_size: int,
@@ -128,9 +130,7 @@ def _process_titles_for_language(
 
 
 def process_languages(
-    year: str,
-    languages: Optional[List[str]] = None,
-    batch_size: int = BATCH_SIZE
+    year: str, languages: Optional[List[str]] = None, batch_size: int = BATCH_SIZE
 ) -> Dict[str, Dict[str, int]]:
     """
     Process editor statistics for all or specified languages.

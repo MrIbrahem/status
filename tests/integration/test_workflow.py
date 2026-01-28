@@ -1,7 +1,8 @@
 """Integration tests for complete workflow."""
 
+from unittest.mock import MagicMock, Mock
+
 import pytest
-from unittest.mock import Mock, MagicMock
 
 from src.workflow import WorkflowOrchestrator
 

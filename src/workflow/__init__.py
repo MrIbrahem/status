@@ -1,15 +1,16 @@
 """
 Workflow module - Multi-step processing system with resume support
 """
-from typing import List, Optional, Dict
 
-from ..reports import ReportGenerator
-from ..queries import QueryBuilder
-from ..processor import EditorProcessor
-from ..logging_config import get_logger
+from typing import Dict, List, Optional
+
 from ..config import OUTPUT_DIRS
+from ..logging_config import get_logger
+from ..processor import EditorProcessor
+from ..queries import QueryBuilder
+from ..reports import ReportGenerator
 from .step1_retrieve_titles import retrieve_medicine_titles
-from .step2_process_languages import process_languages, get_database_mapping
+from .step2_process_languages import get_database_mapping, process_languages
 from .step3_generate_reports import generate_reports
 
 logger = get_logger(__name__)

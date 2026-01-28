@@ -1,7 +1,9 @@
 """
 Step 3: Generate global reports
 """
+
 from typing import Dict
+
 from ..logging_config import get_logger
 from ..reports import ReportGenerator
 

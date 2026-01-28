@@ -9,7 +9,7 @@ import argparse
 import sys
 
 from src.config import CURRENT_YEAR, LOG_LEVEL
-from src.logging_config import setup_logging, get_logger
+from src.logging_config import get_logger, setup_logging
 from src.workflow import WorkflowOrchestrator
 
 logger = get_logger(__name__)
