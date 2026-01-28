@@ -21,7 +21,7 @@ python_functions = test_*
 testpaths = tests
 
 # Output options
-addopts = 
+addopts =
     -v
     --strict-markers
     --tb=short
@@ -43,7 +43,7 @@ markers =
 # Coverage options
 [coverage:run]
 source = src
-omit = 
+omit =
     */tests/*
     */test_*
     */__pycache__/*
@@ -78,15 +78,15 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.9", "3.10", "3.11", "3.12"]
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
-    
+
     - name: Cache pip packages
       uses: actions/cache@v4
       with:
@@ -94,38 +94,38 @@ jobs:
         key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
         restore-keys: |
           ${{ runner.os }}-pip-
-    
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install -r requirements-dev.txt
-    
+
     - name: Lint with flake8
       run: |
         # Stop build if there are Python syntax errors or undefined names
         flake8 src --count --select=E9,F63,F7,F82 --show-source --statistics
         # Exit-zero treats all errors as warnings
         flake8 src --count --exit-zero --max-complexity=10 --max-line-length=120 --statistics
-    
+
     - name: Check code formatting with black
       run: |
         black --check src tests
-    
+
     - name: Type checking with mypy
       run: |
         mypy src --ignore-missing-imports
       continue-on-error: true
-    
+
     - name: Run unit tests
       run: |
         pytest tests/unit -v -m "unit and not db"
-    
+
     - name: Run integration tests (with mocked DB)
       run: |
         pytest tests/integration -v -m "not network"
       continue-on-error: true
-    
+
     - name: Upload coverage reports to Codecov
       if: matrix.python-version == '3.11'
       uses: codecov/codecov-action@v4
@@ -139,13 +139,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Run Bandit security checks
       run: |
         pip install bandit
         bandit -r src -f json -o bandit-report.json
       continue-on-error: true
-    
+
     - name: Upload Bandit report
       uses: actions/upload-artifact@v4
       if: always()
@@ -170,29 +170,29 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: "3.11"
-    
+
     - name: Install dependencies
       run: |
         pip install flake8 black isort pylint mypy
-    
+
     - name: Run flake8
       run: flake8 src tests
       continue-on-error: true
-    
+
     - name: Run black
       run: black --check --diff src tests
-    
+
     - name: Run isort
       run: isort --check-only --diff src tests
-    
+
     - name: Run pylint
       run: pylint src
       continue-on-error: true
@@ -657,54 +657,6 @@ dmypy.json
 *.bak
 *.tmp
 ```
-
----
-
-## File: `setup.py`
-
-```python
-"""Setup configuration for Wikipedia Medicine project."""
-
-from setuptools import setup, find_packages
-
-with open("README.md", "r", encoding="utf-8") as fh:
-    long_description = fh.read()
-
-with open("requirements.txt", "r", encoding="utf-8") as fh:
-    requirements = [line.strip() for line in fh if line.strip() and not line.startswith("#")]
-
-setup(
-    name="wikipedia-medicine",
-    version="1.0.0",
-    author="Your Name",
-    author_email="your.email@example.com",
-    description="Wikipedia Medicine project editor analysis tool",
-    long_description=long_description,
-    long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/wikipedia-medicine",
-    packages=find_packages(where="src"),
-    package_dir={"": "src"},
-    classifiers=[
-        "Development Status :: 4 - Beta",
-        "Intended Audience :: Developers",
-        "Topic :: Software Development :: Libraries :: Python Modules",
-        "License :: OSI Approved :: MIT License",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10",
-        "Programming Language :: Python :: 3.11",
-        "Programming Language :: Python :: 3.12",
-    ],
-    python_requires=">=3.9",
-    install_requires=requirements,
-    entry_points={
-        "console_scripts": [
-            "wikipedia-medicine=main:main",
-        ],
-    },
-)
-```
-
 ---
 
 ## File: `pyproject.toml`
@@ -789,7 +741,7 @@ testpaths = ["tests"]
 ```ini
 [flake8]
 max-line-length = 120
-exclude = 
+exclude =
     .git,
     __pycache__,
     .pytest_cache,
@@ -798,7 +750,7 @@ exclude =
     build,
     dist,
     *.egg-info
-ignore = 
+ignore =
     E203,  # whitespace before ':'
     E266,  # too many leading '#' for block comment
     E501,  # line too long (handled by black)
@@ -1134,25 +1086,25 @@ from src.database import Database
 @pytest.mark.unit
 class TestDatabase:
     """Test Database class."""
-    
+
     def test_database_init(self):
         """Test database initialization."""
         db = Database("localhost", "test_db")
         assert db.host == "localhost"
         assert db.database == "test_db"
         assert db.port == 3306
-    
+
     @patch('src.database.pymysql.connect')
     def test_context_manager(self, mock_connect):
         """Test database context manager."""
         mock_conn = Mock()
         mock_connect.return_value = mock_conn
-        
+
         with Database("localhost", "test_db") as db:
             assert db.connection == mock_conn
-        
+
         mock_conn.close.assert_called_once()
-    
+
     @pytest.mark.db
     def test_execute_query(self):
         """Test query execution."""
@@ -1170,7 +1122,7 @@ from src.utils import is_ip_address, escape_title
 @pytest.mark.unit
 class TestUtils:
     """Test utility functions."""
-    
+
     @pytest.mark.parametrize("ip,expected", [
         ("192.168.1.1", True),
         ("Username123", False),
@@ -1180,7 +1132,7 @@ class TestUtils:
     def test_is_ip_address(self, ip, expected):
         """Test IP address detection."""
         assert is_ip_address(ip) == expected
-    
+
     def test_escape_title(self):
         """Test SQL title escaping."""
         title = "Test'Title"
@@ -1198,7 +1150,7 @@ from unittest.mock import patch
 @pytest.mark.integration
 class TestWorkflow:
     """Test complete workflow."""
-    
+
     @pytest.mark.slow
     def test_full_pipeline(self):
         """Test complete data pipeline."""
@@ -1244,7 +1196,6 @@ This setup includes:
 4. **Dependencies**: Production and development requirements
 5. **Code Quality**: Black, isort, flake8, pylint, mypy configurations
 6. **Pre-commit**: Automated code quality checks
-7. **Build**: setup.py and pyproject.toml for package distribution
 8. **Convenience**: Makefile for common commands
 9. **Version Control**: .gitignore for Python projects
 10. **License**: MIT license template
