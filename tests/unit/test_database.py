@@ -1,7 +1,8 @@
 """Unit tests for database module."""
 
+from unittest.mock import MagicMock, Mock, mock_open, patch
+
 import pytest
-from unittest.mock import Mock, patch, mock_open, MagicMock
 
 from src.database import Database
 

@@ -1,6 +1,7 @@
 """Test configuration module."""
 
 import pytest
+
 from src import config
 
 

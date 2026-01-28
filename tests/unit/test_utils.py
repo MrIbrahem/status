@@ -1,10 +1,11 @@
 """Unit tests for utility functions."""
 
-import pytest
 import os
 import tempfile
 
-from src.utils import is_ip_address, escape_title, format_number, ensure_directory
+import pytest
+
+from src.utils import ensure_directory, escape_title, format_number, is_ip_address
 
 
 @pytest.mark.unit

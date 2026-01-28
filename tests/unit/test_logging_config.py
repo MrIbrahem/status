@@ -1,8 +1,10 @@
 """Test logging configuration."""
 
-import pytest
 import logging
-from src.logging_config import setup_logging, get_logger
+
+import pytest
+
+from src.logging_config import get_logger, setup_logging
 
 
 @pytest.mark.unit

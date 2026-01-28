@@ -9,8 +9,8 @@ See .claude/context/database_schema.md for schema details.
 
 from typing import List
 
-from src.utils import escape_title
 from src.logging_config import get_logger
+from src.utils import escape_title
 
 logger = get_logger(__name__)
 

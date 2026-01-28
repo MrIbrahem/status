@@ -10,9 +10,9 @@ import sys
 from typing import Dict
 
 from src.config import CURRENT_YEAR, LOG_LEVEL
-from src.logging_config import setup_logging, get_logger
-from src.queries import QueryBuilder
+from src.logging_config import get_logger, setup_logging
 from src.processor import EditorProcessor
+from src.queries import QueryBuilder
 from src.reports import ReportGenerator
 
 logger = get_logger(__name__)

@@ -5,7 +5,7 @@ All configuration constants for the Wikipedia Medicine project.
 """
 
 from datetime import datetime
-from typing import Dict, Any
+from typing import Any, Dict
 
 # Years (dynamically calculated)
 CURRENT_YEAR: str = str(datetime.now().year)

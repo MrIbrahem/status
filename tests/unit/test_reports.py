@@ -1,11 +1,12 @@
 """Test reports module."""
 
-import pytest
-import os
 import json
+import os
 
-from src.reports import ReportGenerator
+import pytest
+
 from src.config import OUTPUT_DIRS
+from src.reports import ReportGenerator
 
 
 @pytest.mark.unit

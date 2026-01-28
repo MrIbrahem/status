@@ -14,7 +14,7 @@ from typing import Any, Dict, List, Optional
 import pymysql
 import pymysql.cursors
 
-from src.config import DATABASE_CONFIG, CREDENTIAL_FILE, MAX_RETRIES
+from src.config import CREDENTIAL_FILE, DATABASE_CONFIG, MAX_RETRIES
 from src.logging_config import get_logger
 
 logger = get_logger(__name__)
