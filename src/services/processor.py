@@ -5,7 +5,7 @@ This module provides the EditorProcessor class for processing and
 aggregating editor statistics from Wikipedia databases.
 """
 
-from typing import Dict, List
+from typing import Dict, List, Any
 
 from ..logging_config import get_logger
 from ..utils import is_ip_address
@@ -28,6 +28,36 @@ class EditorProcessor:
         self.query_builder = QueryBuilder()
         logger.debug("EditorProcessor initialized")
 
+    def _aggregate_results(self, results: List[Dict[str, Any]]) -> Dict[str, int]:
+        """
+        Aggregate editor counts from query results.
+
+        Args:
+            results: List of query results with actor_name and count
+
+        Returns:
+            Dictionary mapping usernames to edit counts
+        """
+        editors = {}
+
+        for row in results:
+            actor_name = row.get("actor_name", "")
+            count = row.get("count", 0)
+
+            # Filter out IP addresses
+            if is_ip_address(actor_name):
+                logger.debug("Skipped IP address: %s", actor_name)
+                continue
+
+            # Filter out bot accounts (additional check)
+            if "bot" in actor_name.lower():
+                logger.debug("Skipped bot account: %s", actor_name)
+                continue
+
+            editors[actor_name] = count
+
+        return editors
+
     def process_language_ar_en(self, lang: str, year: str) -> Dict[str, int]:
         """
         Process editor statistics for a specific language.
@@ -41,7 +71,6 @@ class EditorProcessor:
         """
         logger.info("Processing language: %s", lang)
 
-        editors: Dict[str, int] = {}
         params = None
 
         # Special handling for Arabic and English
@@ -60,21 +89,7 @@ class EditorProcessor:
             logger.error("Failed to process language %s: %s", lang, str(e), exc_info=True)
             raise
 
-        for row in results:
-            actor_name = row.get("actor_name", "")
-            count = row.get("count", 0)
-
-            # Filter out IP addresses
-            if is_ip_address(actor_name):
-                logger.debug("Skipped IP address: %s", actor_name)
-                continue
-
-            # Filter out bot accounts (additional check)
-            if "bot" in actor_name.lower():
-                logger.debug("Skipped bot account: %s", actor_name)
-                continue
-
-            editors[actor_name] = count
+        editors: Dict[str, int] = self._aggregate_results(results)
 
         return editors
 
@@ -125,21 +140,7 @@ class EditorProcessor:
                     logger.error("Failed to process language %s: %s", lang, str(e), exc_info=True)
                     raise
 
-                for row in results:
-                    actor_name = row.get("actor_name", "")
-                    count = row.get("count", 0)
-
-                    # Filter out IP addresses
-                    if is_ip_address(actor_name):
-                        logger.debug("Skipped IP address: %s", actor_name)
-                        continue
-
-                    # Filter out bot accounts (additional check)
-                    if "bot" in actor_name.lower():
-                        logger.debug("Skipped bot account: %s", actor_name)
-                        continue
-
-                    editors[actor_name] = count
+                editors.update(self._aggregate_results(results))
 
         return editors
 

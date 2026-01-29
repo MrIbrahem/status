@@ -198,6 +198,7 @@ class TestDatabaseAnalyticsContextManager:
             assert isinstance(args[1], ValueError)
 
 
+@pytest.mark.unit
 class TestDatabaseAnalyticsEdgeCases:
     """Tests for edge cases and special scenarios."""
 
