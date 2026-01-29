@@ -37,7 +37,7 @@ def generate_reports(all_editors: Dict[str, Dict[str, int]], year: str) -> None:
     logger.info("✓ Step 3 complete")
 
 
-def generate_reports_from_files(year: str) -> None:
+def generate_reports_from_files(year: str) -> Dict[str, Dict[str, int]]:
     """
     Generate global summary report.
 
@@ -68,7 +68,7 @@ def generate_reports_from_files(year: str) -> None:
 
     report_generator.generate_global_report(all_editors, year)
     logger.info("✓ Step 4 complete")
-
+    return all_editors
 
 __all__ = [
     "generate_reports",

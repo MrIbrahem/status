@@ -10,7 +10,7 @@ from ..services import EditorProcessor, QueryBuilder, ReportGenerator
 from ..services.db_mapping import get_database_mapping
 from .step1_retrieve_titles import download_medicine_titles
 from .step2_process_languages import process_languages
-from .step3_generate_reports import generate_reports, generate_reports_from_files
+from .step3_generate_reports import generate_reports_from_files, generate_reports
 
 logger = get_logger(__name__)
 
@@ -65,7 +65,7 @@ class WorkflowOrchestrator:
     def generate_reports_from_files(
         self,
         year: str,
-    ) -> None:
+    ) -> Dict[str, Dict[str, int]]:
         """
         Generate global summary report from existing files.
 
@@ -130,6 +130,8 @@ class WorkflowOrchestrator:
         else:
             logger.info("✓ Skipping Step 1: Retrieve Medicine article titles")
 
+        all_editors = {}
+
         if not skip_steps or 2 not in skip_steps:
             # Step 2: Process languages
             all_editors = self.process_languages(
@@ -137,12 +139,11 @@ class WorkflowOrchestrator:
             )
         else:
             logger.info("✓ Skipping Step 2: Process editor statistics for languages")
-            all_editors = {}
 
         if not skip_steps or 3 not in skip_steps:
             # Step 3: Generate global report
             # self.generate_reports(all_editors, year)
-            self.generate_reports_from_files(year)
+            all_editors = self.generate_reports_from_files(year)
         else:
             logger.info("✓ Skipping Step 3: Generate reports")
 
