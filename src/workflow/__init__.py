@@ -74,6 +74,7 @@ class WorkflowOrchestrator:
         year: str,
         languages: Optional[List[str]] = None,
         skip_steps: Optional[List[int]] = None,
+        sort_desc: bool = True,
     ) -> int:
         """
         Run the complete workflow from start to finish.
@@ -105,7 +106,7 @@ class WorkflowOrchestrator:
 
         if not skip_steps or 3 not in skip_steps:
             # Step 3: Generate global report
-            self.generate_reports(all_editors, year)
+            self.generate_reports(all_editors, year, sort_descending=sort_desc)
         else:
             logger.info("✓ Skipping Step 3: Generate reports")
 

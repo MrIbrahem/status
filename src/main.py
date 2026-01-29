@@ -53,11 +53,16 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument(
         "--languages", type=str, nargs="+", default=None, help="Specific languages to process (default: all)"
     )
-    # add argument to skip Steps
     parser.add_argument(
         "--skip-steps", type=int, nargs="+",
         default=[],
         help="List of steps numbers to skip (default: none), available steps (1,2,3): 1-download_medicine_titles, 2-process_languages, 3-generate_reports"
+    )
+
+    parser.add_argument(
+        "--desc",
+        action="store_true",
+        help="Sort languages by titles DESC in step 2 (default: ASC)",
     )
     return parser.parse_args()
 
@@ -95,7 +100,8 @@ def main() -> int:
     exit_code = orchestrator.run_complete_workflow(
         year=args.year,
         languages=args.languages,
-        skip_steps=args.skip_steps
+        skip_steps=args.skip_steps,
+        sort_desc=args.desc,
     )
 
     return exit_code
