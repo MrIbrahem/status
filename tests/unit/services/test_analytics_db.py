@@ -7,6 +7,7 @@ import pytest
 from src.services.analytics_db import DatabaseAnalytics
 
 
+@pytest.mark.unit
 class TestDatabaseAnalyticsGetDatabaseInfo:
     """Tests for get_database_info method."""
 
