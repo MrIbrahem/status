@@ -14,6 +14,7 @@ A Python application to retrieve and analyze editor contributions across Wikiped
 - 🔄 Batch processing for large datasets
 - 🔐 Secure database connections via Toolforge
 - 📈 Comprehensive logging and error handling
+- 🚀 **NEW:** Automatic report upload to MDWiki
 
 ## Prerequisites
 
@@ -60,16 +61,26 @@ python start.py
 
 ```bash
 # Process specific languages only
-python start.py --languages es,fr,de
+python start.py --languages es fr de
 
 # Set custom year
 python start.py --year 2024
 
-# Skip title retrieval (use existing data)
-python start.py --skip-titles
+# Skip specific workflow steps
+python start.py --skip-steps 1 2 3 4
+# Step 1: Retrieve Medicine article titles
+# Step 2: Process editor statistics for languages
+# Step 3: Generate reports
+# Step 4: Upload reports to MDWiki
 
-# Generate reports only
-python start.py --reports-only
+# Skip upload to MDWiki (keep reports local only)
+python start.py --skip-steps 4
+
+# Sort languages by titles in descending order
+python start.py --desc
+
+# Skip processing languages with existing data
+python start.py --skip-existing
 
 # Enable debug logging
 python start.py --log-level DEBUG
@@ -87,19 +98,25 @@ med-status/
 │   │   ├── database.py      # Database connection management
 │   │   ├── processor.py     # Data processing logic
 │   │   ├── queries.py       # SQL query templates
-│   │   └── reports.py       # Report generation
+│   │   ├── reports.py       # Report generation
+│   │   └── page.py          # MDWiki page client (NEW)
 │   ├── workflow/
 │   │   ├── __init__.py
 │   │   ├── step1_retrieve_titles.py
 │   │   ├── step2_process_languages.py
-│   │   └── step3_generate_reports.py
+│   │   ├── step3_generate_reports.py
+│   │   └── step4_uploader.py # Report upload to MDWiki (NEW)
 │   ├── config.py            # Configuration
 │   └── utils.py             # Helper functions
 ├── tests/
 │   ├── unit/
 │   │   ├── test_database.py
 │   │   ├── test_processor.py
-│   │   └── test_utils.py
+│   │   ├── test_utils.py
+│   │   ├── services/
+│   │   │   └── test_page.py # MDWiki page service tests (NEW)
+│   │   └── workflow/
+│   │       └── test_step4_uploader.py # Uploader tests (NEW)
 │   └── integration/
 │       ├── test_queries.py
 │       └── test_workflow.py
@@ -113,6 +130,7 @@ med-status/
 ├── pytest.ini
 ├── requirements.txt
 ├── requirements-dev.txt
+├── .env.example             # Environment variables template
 ├── README.md
 ├── LICENSE
 └── .gitignore
@@ -234,6 +252,32 @@ BATCH_SIZE = 100
 MAX_CONNECTIONS = 5
 ```
 
+### MDWiki Upload Configuration
+
+To enable automatic report upload to MDWiki, create a `.env` file:
+
+```bash
+# Copy the example file
+cp .env.example .env
+
+# Edit .env with your credentials
+MDWIKI_USERNAME=your_mdwiki_username
+MDWIKI_PASSWORD=your_mdwiki_password
+```
+
+**Note:** The `.env` file is already in `.gitignore` to protect your credentials.
+
+#### Page Mapping
+
+Reports are uploaded to the following pages on MDWiki:
+
+| Local File | MDWiki Page |
+|------------|-------------|
+| `reports/total_report.wiki` | `WikiProjectMed:WikiProject_Medicine/Stats/Top_medical_editors_2025_(all)` |
+| `reports/ar.wiki` | `WikiProjectMed:WikiProject_Medicine/Stats/Top_medical_editors_2025/ar` |
+| `reports/es.wiki` | `WikiProjectMed:WikiProject_Medicine/Stats/Top_medical_editors_2025/es` |
+| `reports/{lang}.wiki` | `WikiProjectMed:WikiProject_Medicine/Stats/Top_medical_editors_2025/{lang}` |
+
 ## Workflow
 
 1. **Retrieve Medicine titles** from English Wikipedia
@@ -241,6 +285,7 @@ MAX_CONNECTIONS = 5
 3. **Query editor statistics** for each language
 4. **Generate per-language reports** in WikiText format
 5. **Create global summary report** across all languages
+6. **Upload reports to MDWiki** (optional)
 
 ## Troubleshooting
 
