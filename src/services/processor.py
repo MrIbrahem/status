@@ -52,7 +52,7 @@ class EditorProcessor:
 
         results = []
         try:
-            with DatabaseAnalytics(lang) as db:
+            with DatabaseAnalytics(lang, timeout=500) as db:
                 results = db.execute(query, params=params)
 
         except Exception as e:

@@ -1,5 +1,5 @@
 """ """
-
+from typing import Optional
 from ..logging_config import get_logger
 from .database import Database
 from .db_mapping import get_database_name_for_language
@@ -18,17 +18,18 @@ class DatabaseAnalytics:
         ...     results = db.execute("SELECT * FROM page LIMIT 10")
     """
 
-    def __init__(self, site_code: str) -> None:
+    def __init__(self, site_code: str, timeout: Optional[float] = None) -> None:
         """
         Initialize analytics database connection parameters.
 
         Args:
             site_code: Language code (e.g., "en", "fr", "ar")
+            timeout: Connection timeout in seconds
         """
         database, host = self.get_database_info(site_code)
         self.database = database
         self.host = host
-        self.db = Database(host, database)
+        self.db = Database(host, database, timeout=timeout)
 
     def get_database_info(self, site_code: str) -> tuple[str, str]:
         pre_defined_db_mapping = {

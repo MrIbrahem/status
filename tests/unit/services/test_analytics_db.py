@@ -101,7 +101,8 @@ class TestDatabaseAnalyticsInit:
             assert db_analytics.db == mock_db_instance
             mock_database_class.assert_called_once_with(
                 "enwiki.analytics.db.svc.wikimedia.cloud",
-                "enwiki"
+                "enwiki",
+                None
             )
 
     def test_init_with_meta(self):
@@ -116,7 +117,8 @@ class TestDatabaseAnalyticsInit:
             assert db_analytics.host == "s7.analytics.db.svc.wikimedia.cloud"
             mock_database_class.assert_called_once_with(
                 "s7.analytics.db.svc.wikimedia.cloud",
-                "meta_p"
+                "meta_p",
+                None
             )
 
     def test_init_with_hyphenated_site_code(self):
@@ -133,7 +135,8 @@ class TestDatabaseAnalyticsInit:
             assert db_analytics.host == "bat_smgwiki.analytics.db.svc.wikimedia.cloud"
             mock_database_class.assert_called_once_with(
                 "bat_smgwiki.analytics.db.svc.wikimedia.cloud",
-                "bat_smgwiki"
+                "bat_smgwiki",
+                None
             )
 
 
