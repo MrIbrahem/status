@@ -86,6 +86,7 @@ python start.py --log-level DEBUG
 
 ```
 wikipedia-medicine/
+├── start.py                 # Entry point
 ├── src/
 │   ├── __init__.py
 │   ├── services/
@@ -99,7 +100,6 @@ wikipedia-medicine/
 │   │   ├── step1_retrieve_titles.py
 │   │   ├── step2_process_languages.py
 │   │   └── step3_generate_reports.py
-│   ├── main.py              # Entry point
 │   ├── config.py            # Configuration
 │   └── utils.py             # Helper functions
 ├── tests/
