@@ -57,6 +57,7 @@ class DatabaseUtils:
             "yue": "zh_yuewiki_p",
             "zh-yue": "zh_yuewiki_p",
         }
+        dbname = dbname.replace("-", "_")
         dbname_normalized = dbname.strip().lower().removesuffix("_p").removesuffix("wiki")
         if dbname_normalized in pre_defined_db_mapping:
             return pre_defined_db_mapping[dbname_normalized]

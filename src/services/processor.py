@@ -85,7 +85,7 @@ class EditorProcessor:
 
             editors[actor_name] = count
 
-            logger.info("✓ Language '%s' complete: %d editors found", lang, len(editors))
+            # logger.info("✓ Language '%s' complete: %d editors found", lang, len(editors))
 
         return editors
 
