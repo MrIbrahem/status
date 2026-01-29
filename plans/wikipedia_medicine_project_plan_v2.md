@@ -20,7 +20,7 @@ Before starting implementation, review:
 ## Project Structure (Updated)
 
 ```
-wikipedia-medicine/
+med-status/
 ├── src/
 │   ├── __init__.py
 │   ├── main.py                    # Entry point with CLI
@@ -947,9 +947,7 @@ Each with:
 ```bash
 # 1. Setup
 git clone <repo>
-cd wikipedia-medicine
-python -m venv venv
-source venv/bin/activate
+cd med-status
 pip install -r requirements-dev.txt
 pre-commit install
 

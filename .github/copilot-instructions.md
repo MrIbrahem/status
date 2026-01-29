@@ -642,14 +642,6 @@ The application follows these steps:
 
 **Initial Setup Sequence:**
 ```bash
-# 1. Create and activate virtual environment (ALWAYS do this first)
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# 2. Install dependencies (use make for consistency)
-make install-dev
-# This runs: pip install -r requirements.txt && pip install -r requirements-dev.txt && pre-commit install
-
 # Alternative: Manual installation
 pip install -r requirements.txt
 pip install -r requirements-dev.txt
@@ -925,15 +917,6 @@ git push --force-with-lease
 ```
 
 ## Troubleshooting Common Issues
-
-### Environment Issues
-
-**Issue: "ModuleNotFoundError" when running tests**
-```bash
-# Solution: Ensure virtual environment is activated and dependencies installed
-source venv/bin/activate
-make install-dev
-```
 
 **Issue: "Command not found: make"**
 ```bash

@@ -1,6 +1,6 @@
 {
   "project": {
-    "name": "wikipedia-medicine",
+    "name": "med-status",
     "description": "Wikipedia Medicine project editor analysis tool",
     "version": "1.0.0",
     "language": "python",
