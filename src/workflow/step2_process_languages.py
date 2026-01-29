@@ -3,6 +3,7 @@ Step 2: Process languages
 """
 
 from typing import Dict, List, Optional
+
 from tqdm import tqdm
 
 from ..config import BATCH_SIZE, OUTPUT_DIRS
@@ -93,9 +94,7 @@ def gather_language_titles(languages_to_process: List[str], sort_descending: boo
         titles: List[str] = load_language_titles_safe(lang, OUTPUT_DIRS["languages"])
         languages_titles[lang] = titles
 
-    languages_titles = dict(
-        sorted(languages_titles.items(), key=lambda item: len(item[1]), reverse=sort_descending)
-    )
+    languages_titles = dict(sorted(languages_titles.items(), key=lambda item: len(item[1]), reverse=sort_descending))
 
     return languages_titles
 
@@ -128,7 +127,9 @@ def process_languages(
 
     logger.info("Processing %d languages", len(languages_to_process))
 
-    languages_titles: dict[str, list[str]] = gather_language_titles(languages_to_process, sort_descending=sort_descending)
+    languages_titles: dict[str, list[str]] = gather_language_titles(
+        languages_to_process, sort_descending=sort_descending
+    )
 
     all_editors: Dict[str, Dict[str, int]] = {}
 

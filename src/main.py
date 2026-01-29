@@ -54,9 +54,11 @@ def parse_arguments() -> argparse.Namespace:
         "--languages", type=str, nargs="+", default=None, help="Specific languages to process (default: all)"
     )
     parser.add_argument(
-        "--skip-steps", type=int, nargs="+",
+        "--skip-steps",
+        type=int,
+        nargs="+",
         default=[],
-        help="List of steps numbers to skip (default: none), available steps (1,2,3): 1-download_medicine_titles, 2-process_languages, 3-generate_reports"
+        help="List of steps numbers to skip (default: none), available steps (1,2,3): 1-download_medicine_titles, 2-process_languages, 3-generate_reports",
     )
 
     parser.add_argument(

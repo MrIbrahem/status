@@ -38,7 +38,9 @@ class WorkflowOrchestrator:
     def get_database_mapping(self) -> dict:
         return get_database_mapping()
 
-    def process_languages(self, year: str, languages: Optional[List[str]] = None, sort_descending: bool = False) -> dict:
+    def process_languages(
+        self, year: str, languages: Optional[List[str]] = None, sort_descending: bool = False
+    ) -> dict:
         """
         Process editor statistics for specified languages.
 

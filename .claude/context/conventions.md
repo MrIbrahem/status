@@ -600,7 +600,7 @@ escaped = pymysql.converters.escape_string(title)
 
 # Use LIKE for year filtering instead of YEAR() for performance
 # Index on rev_timestamp supports LIKE but not YEAR()
-query = "WHERE YEAR(rev_timestamp) = 2024"
+query = "WHERE rev_timestamp LIKE '2024%'"
 ```
 
 ### SQL Query Comments
@@ -613,7 +613,7 @@ query = """
     JOIN page ON rev_page = page_id      -- Link revisions to pages
     WHERE page_title IN (%(titles)s)
       AND page_namespace = 0              -- Main article namespace only
-      AND YEAR(rev_timestamp) = 2024     -- Filter by year (uses index)
+      AND rev_timestamp LIKE '2024%%'     -- Filter by year (uses index)
       AND LOWER(CAST(actor_name AS CHAR)) NOT LIKE '%%bot%%'  -- Exclude bots
     GROUP BY actor_id
     ORDER BY count DESC

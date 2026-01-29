@@ -3,6 +3,7 @@ Step 1: Retrieve medicine titles
 """
 
 from typing import Any, Dict, List
+
 from tqdm import tqdm
 
 from ..config import OUTPUT_DIRS
@@ -35,16 +36,12 @@ def _save_language_summary_report(titles_by_language: Dict[str, List[str]]) -> N
     """
     Save summary report of titles by language.
     """
-    data = {
-        lang: len(titles) for lang, titles in titles_by_language.items()
-    }
-    data = dict(
-        sorted(data.items(), key=lambda item: item[1], reverse=True)
-    )
+    data = {lang: len(titles) for lang, titles in titles_by_language.items()}
+    data = dict(sorted(data.items(), key=lambda item: item[1], reverse=True))
     output_file = OUTPUT_DIRS["reports"] / "language_titles_summary.wiki"
 
     wiki_text = "Language Titles Summary:\n"
-    wiki_text += "{| class=\"wikitable\"\n! Language !! Number of Titles\n"
+    wiki_text += '{| class="wikitable"\n! Language !! Number of Titles\n'
     for lang, count in data.items():
         wiki_text += f"| {lang} || {count}\n"
     wiki_text += "|}\n"
