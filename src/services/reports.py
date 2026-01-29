@@ -24,18 +24,19 @@ def work_all_editors(editors, last_year) -> str:
 
     text += f"Numbers of {last_year}.\n"
 
-    txt_table = """{| class="sortable wikitable"\n!#\n!User\n!Count\n"""
-    txt_table += """!Wiki\n"""
+    txt_table = """{| class="sortable wikitable"\n!#\n"""
+    txt_table += """!User\n!Count at wiki\n!Wiki\n!Count global\n"""
 
     targets = ""
 
     for i, (user, ta) in enumerate(editors.items(), start=1):
+        count_global = ta["count_global"]
         count = ta["count"]
         wiki = ta["site"]
         user = user.replace("_", " ")
         # #{{#target:User:{User}|{wiki}.wikipedia.org}}
         targets += f"#{{{{#target:User:{user}|{wiki}.wikipedia.org}}}}\n"
-        txt_table += f"|-\n" f"!{i}\n" f"|[[:w:{wiki}:user:{user}|{user}]]\n" f"|{count:,}\n" f"|{wiki}\n"
+        txt_table += f"|-\n" f"!{i}\n" f"|[[:w:{wiki}:user:{user}|{user}]]\n" f"|{count:,}\n" f"|{wiki}\n" f"|{count_global:,}\n"
         if count < 10:
             break
 
@@ -168,7 +169,11 @@ class ReportGenerator:
 
         for rank, (editor, count) in enumerate(sorted_global[:1000], 1):
             editor_most_wiki = max(editors_by_wiki[editor].items(), key=lambda x: x[1])
-            all_editors_status[editor] = {"count": editor_most_wiki[1], "site": editor_most_wiki[0]}
+            all_editors_status[editor] = {
+                "count": editor_most_wiki[1],
+                "site": editor_most_wiki[0],
+                "count_global": count
+            }
 
         all_editors_status = dict(sorted(all_editors_status.items(), key=lambda x: x[1]["count"], reverse=True))
 
