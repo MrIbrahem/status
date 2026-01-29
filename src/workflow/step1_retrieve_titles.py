@@ -31,6 +31,29 @@ def _organize_titles_by_language(results: List[Dict]) -> Dict[str, List[str]]:
     return titles_by_language
 
 
+def _save_language_summary_report(titles_by_language: Dict[str, List[str]]) -> None:
+    """
+    Save summary report of titles by language.
+    """
+    data = {
+        lang: len(titles) for lang, titles in titles_by_language.items()
+    }
+    data = dict(
+        sorted(data.items(), key=lambda item: item[1], reverse=True)
+    )
+    output_file = OUTPUT_DIRS["reports"] / "language_titles_summary.wiki"
+
+    wiki_text = "Language Titles Summary:\n"
+    wiki_text += "{| class=\"wikitable\"\n! Language !! Number of Titles\n"
+    for lang, count in data.items():
+        wiki_text += f"| {lang} || {count}\n"
+    wiki_text += "|}\n"
+
+    with open(output_file, "w", encoding="utf-8") as f:
+        f.write(wiki_text)
+    logger.info(" ✓ Saved language titles summary report to %s", output_file)
+
+
 def _save_language_files(titles_by_language: Dict[str, List[str]]) -> None:
     """Save title lists to language files."""
     for lang, titles in titles_by_language.items():
@@ -78,6 +101,7 @@ def download_medicine_titles() -> None:
 
     titles_by_language = _organize_titles_by_language(results)
     _save_language_files(titles_by_language)
+    _save_language_summary_report(titles_by_language)
 
     logger.info("✓ Found %d languages with %d total articles", len(titles_by_language), len(results))
 
