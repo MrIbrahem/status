@@ -60,7 +60,6 @@ def fetch_medicine_titles() -> List[Dict[str, Any]]:
         logger.error("Failed to retrieve medicine titles: %s", str(e), exc_info=True)
 
     if results:
-        logger.info("Retrieved %d article-language pairs", len(results))
         save_titles_sql_results(results, OUTPUT_DIRS["sqlresults"])
 
     return results
