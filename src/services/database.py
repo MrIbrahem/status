@@ -62,11 +62,11 @@ class DatabaseUtils:
             return pre_defined_db_mapping[dbname_normalized]
 
         if dbname_normalized == dbname.lower():
-            logger.warning("Database name '%s' missing 'wiki' suffix. Appending suffix.", dbname)
+            # logger.warning("Database name '%s' missing 'wiki' suffix. Appending suffix.", dbname)
             return f"{dbname}wiki_p"
 
         if not dbname.endswith("_p"):
-            logger.warning("Database name '%s' does not end with '_p'. Appending suffix.", dbname)
+            # logger.warning("Database name '%s' does not end with '_p'. Appending suffix.", dbname)
             dbname += "_p"
         return dbname
 
