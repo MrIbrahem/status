@@ -52,7 +52,8 @@ class EditorProcessor:
 
         results = []
         try:
-            with DatabaseAnalytics(lang, timeout=500) as db:
+            # https://quarry.wmcloud.org/query/101549 Executed in 2289.70 seconds
+            with DatabaseAnalytics(lang, timeout=3_000) as db:
                 results = db.execute(query, params=params)
 
         except Exception as e:

@@ -102,7 +102,7 @@ class TestDatabaseAnalyticsInit:
             mock_database_class.assert_called_once_with(
                 "enwiki.analytics.db.svc.wikimedia.cloud",
                 "enwiki",
-                None
+                timeout=None
             )
 
     def test_init_with_meta(self):
@@ -118,7 +118,7 @@ class TestDatabaseAnalyticsInit:
             mock_database_class.assert_called_once_with(
                 "s7.analytics.db.svc.wikimedia.cloud",
                 "meta_p",
-                None
+                timeout=None
             )
 
     def test_init_with_hyphenated_site_code(self):
@@ -136,7 +136,7 @@ class TestDatabaseAnalyticsInit:
             mock_database_class.assert_called_once_with(
                 "bat_smgwiki.analytics.db.svc.wikimedia.cloud",
                 "bat_smgwiki",
-                None
+                timeout=None
             )
 
 
