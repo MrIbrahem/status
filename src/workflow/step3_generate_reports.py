@@ -70,6 +70,7 @@ def generate_reports_from_files(year: str) -> Dict[str, Dict[str, int]]:
     logger.info("✓ Step 4 complete")
     return all_editors
 
+
 __all__ = [
     "generate_reports",
     "generate_reports_from_files",
