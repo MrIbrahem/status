@@ -10,7 +10,7 @@ from ..services import EditorProcessor, QueryBuilder, ReportGenerator
 from ..services.db_mapping import get_database_mapping
 from .step1_retrieve_titles import download_medicine_titles
 from .step2_process_languages import process_languages
-from .step3_generate_reports import generate_reports
+from .step3_generate_reports import generate_reports, generate_reports_from_files
 
 logger = get_logger(__name__)
 
@@ -61,6 +61,20 @@ class WorkflowOrchestrator:
             sort_descending=sort_descending,
             skip_existing=skip_existing,
         )
+
+    def generate_reports_from_files(
+        self,
+        year: str,
+    ) -> None:
+        """
+        Generate global summary report from existing files.
+
+        Args:
+            year: Year of the report
+        Example:
+            >>> orchestrator.generate_reports_from_files("2024")
+        """
+        return generate_reports_from_files(year)
 
     def generate_reports(
         self,
@@ -127,7 +141,8 @@ class WorkflowOrchestrator:
 
         if not skip_steps or 3 not in skip_steps:
             # Step 3: Generate global report
-            self.generate_reports(all_editors, year)
+            # self.generate_reports(all_editors, year)
+            self.generate_reports_from_files(year)
         else:
             logger.info("✓ Skipping Step 3: Generate reports")
 
