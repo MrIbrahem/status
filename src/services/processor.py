@@ -49,7 +49,7 @@ class EditorProcessor:
         logger.debug("Processing %d titles for year %s", len(titles), year)
 
         editors: Dict[str, int] = {}
-        params = []
+        params = None
 
         # Special handling for Arabic and English
         if lang == "ar":
