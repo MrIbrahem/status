@@ -19,7 +19,7 @@ logger = get_logger(__name__)
 
 def work_all_editors(editors, last_year) -> str:
 
-    text = "{{:WPM:WikiProject Medicine/Total medical articles}}\n"
+    text = "{{:WPM:WikiProject Medicine/Top medical editors navigation}}\n"
     text += f"{{{{Top medical editors by lang|{last_year}}}}}\n"
 
     text += f"Numbers of {last_year}.\n"
@@ -115,7 +115,7 @@ class ReportGenerator:
         # Sort editors by edit count (descending)
         sorted_editors = dict(sorted(editors.items(), key=lambda x: x[1], reverse=True))
 
-        text = "{{:WPM:WikiProject Medicine/Total medical articles}}\n"
+        text = "{{:WPM:WikiProject Medicine/Top medical editors navigation}}\n"
         text += f"{{{{Top medical editors by lang|{year}}}}}\n"
         # ---
         links = len(load_language_titles(lang, OUTPUT_DIRS["languages"]))
@@ -166,7 +166,7 @@ class ReportGenerator:
         sorted_global = sorted(global_editors.items(), key=lambda x: x[1], reverse=True)
         all_editors_status: Dict[str, Dict[str, int]] = {}
 
-        for rank, (editor, count) in enumerate(sorted_global[:100], 1):
+        for rank, (editor, count) in enumerate(sorted_global[:1000], 1):
             editor_most_wiki = max(editors_by_wiki[editor].items(), key=lambda x: x[1])
             all_editors_status[editor] = {"count": editor_most_wiki[1], "site": editor_most_wiki[0]}
 
