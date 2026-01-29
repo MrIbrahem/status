@@ -26,6 +26,8 @@ class DatabaseAnalytics:
             site_code: Language code (e.g., "en", "fr", "ar")
         """
         database, host = self.get_database_info(site_code)
+        self.database = database
+        self.host = host
         self.db = Database(host, database)
 
     def get_database_info(self, site_code: str) -> tuple[str, str]:
@@ -36,6 +38,7 @@ class DatabaseAnalytics:
         if site_code in pre_defined_db_mapping:
             return pre_defined_db_mapping[site_code]
 
+        site_code = site_code.replace("-", "_")
         site_code = site_code.lower().removesuffix("wiki")
 
         database = get_database_name_for_language(site_code) or f"{site_code}wiki_p"

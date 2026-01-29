@@ -96,3 +96,12 @@ class TestDatabaseUtils:
 
         assert db_name1 == "alswiki_p"
         assert db_name1 == db_name2 == db_name3
+
+    def test_check_database_name_special_cases_under(self):
+        db_utils = DatabaseUtils()
+        db_name1 = db_utils._check_database_name("be-x-old")
+        db_name2 = db_utils._check_database_name("be-x-oldwiki")
+        db_name3 = db_utils._check_database_name("be-x-oldwiki_p")
+
+        assert db_name1 == "be_x_oldwiki_p"
+        assert db_name1 == db_name2 == db_name3
