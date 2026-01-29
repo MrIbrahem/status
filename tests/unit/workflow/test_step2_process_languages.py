@@ -132,10 +132,10 @@ class TestGatherLanguageTitles:
 
     def test_gather_language_titles_sort_descending(self, mocker, tmp_path):
         """Test gathering titles with descending sort."""
-        def mock_load_titles(lang, _path):
-            return {"en": ["a", "b", "c"], "fr": ["x"], "de": ["y", "z"]}.get(lang, [])
-
-        mocker.patch("src.workflow.step2_process_languages.load_language_titles_safe", side_effect=mock_load_titles)
+        mocker.patch(
+            "src.workflow.step2_process_languages.load_language_titles_safe",
+            side_effect=lambda lang, _: {"en": ["a", "b", "c"], "fr": ["x"], "de": ["y", "z"]}.get(lang, []),
+        )
 
         with patch("src.workflow.step2_process_languages.OUTPUT_DIRS", {"languages": tmp_path}):
             result = gather_language_titles(["en", "fr", "de"], sort_descending=True)
@@ -146,10 +146,10 @@ class TestGatherLanguageTitles:
 
     def test_gather_language_titles_sort_ascending(self, mocker, tmp_path):
         """Test gathering titles with ascending sort."""
-        def mock_load_titles(lang, path):
-            return {"en": ["a"], "fr": ["x", "y"], "de": ["z"]}.get(lang, [])
-
-        mocker.patch("src.workflow.step2_process_languages.load_language_titles_safe", side_effect=mock_load_titles)
+        mocker.patch(
+            "src.workflow.step2_process_languages.load_language_titles_safe",
+            side_effect=lambda lang, _: {"en": ["a"], "fr": ["x", "y"], "de": ["z"]}.get(lang, []),
+        )
 
         with patch("src.workflow.step2_process_languages.OUTPUT_DIRS", {"languages": tmp_path}):
             result = gather_language_titles(["en", "fr", "de"], sort_descending=False)
@@ -183,7 +183,7 @@ class TestProcessLanguages:
 
         mocker.patch(
             "src.workflow.step2_process_languages._process_titles_for_language",
-            side_effect=lambda lang, *args: {"Editor1": 100} if lang == "en" else {"Editor2": 50},
+            side_effect=lambda lang, *_, **__: {"Editor1": 100} if lang == "en" else {"Editor2": 50},
         )
 
         mock_report_gen = mocker.Mock()
@@ -285,7 +285,7 @@ class TestProcessLanguages:
 
         mocker.patch(
             "src.workflow.step2_process_languages._process_titles_for_language",
-            side_effect=lambda lang, *args: {lang: 100},
+            side_effect=lambda lang, **_: {lang: 100},
         )
 
         mock_report_gen = mocker.Mock()
