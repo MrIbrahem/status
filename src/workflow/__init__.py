@@ -165,6 +165,7 @@ class WorkflowOrchestrator:
         logger.info("Languages processed: %d", len(all_editors))
         logger.info("Reports saved to: %s/", OUTPUT_DIRS["reports"])
         logger.info("Editor data saved to: %s/", OUTPUT_DIRS["editors"])
+        logger.info(f"upload_results = {upload_results}")
         logger.info("=" * 60)
 
         return 0

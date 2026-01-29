@@ -71,6 +71,5 @@ if not MDWIKI_USERNAME or not MDWIKI_PASSWORD:
 
     logging_logger = logging.getLogger(__name__)
     logging_logger.warning(
-        "MDWiki credentials not found in environment variables. "
-        "Upload functionality will be disabled."
+        "MDWiki credentials not found in environment variables. " "Upload functionality will be disabled."
     )

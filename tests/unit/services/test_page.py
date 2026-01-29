@@ -3,6 +3,7 @@
 from unittest.mock import Mock, patch
 
 import pytest
+
 from src.services.page import PageMWClient, get_page_title, initialize_site_connection
 
 
@@ -10,20 +11,14 @@ from src.services.page import PageMWClient, get_page_title, initialize_site_conn
 def test_get_page_title_language():
     """Test page title generation for language-specific report."""
     title = get_page_title("ar", "2025")
-    assert (
-        title
-        == "WikiProjectMed:WikiProject_Medicine/Stats/Top_medical_editors_2025/ar"
-    )
+    assert title == "WikiProjectMed:WikiProject_Medicine/Stats/Top_medical_editors_2025/ar"
 
 
 @pytest.mark.unit
 def test_get_page_title_global():
     """Test page title generation for global report."""
     title = get_page_title("", "2025", is_global=True)
-    assert (
-        title
-        == "WikiProjectMed:WikiProject_Medicine/Stats/Top_medical_editors_2025_(all)"
-    )
+    assert title == "WikiProjectMed:WikiProject_Medicine/Stats/Top_medical_editors_2025_(all)"
 
 
 @pytest.mark.unit

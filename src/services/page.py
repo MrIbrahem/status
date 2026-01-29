@@ -4,6 +4,7 @@ MediaWiki page management using mwclient.
 This module provides a class-based interface for interacting with MediaWiki
 pages on mdwiki.org.
 """
+
 import functools
 import logging
 from typing import Any, Dict
@@ -86,8 +87,7 @@ class PageMWClient:
         """
         if not MDWIKI_USERNAME or not MDWIKI_PASSWORD:
             raise ValueError(
-                "MDWiki credentials not configured. "
-                "Set MDWIKI_USERNAME and MDWIKI_PASSWORD in .env file."
+                "MDWiki credentials not configured. " "Set MDWIKI_USERNAME and MDWIKI_PASSWORD in .env file."
             )
 
         self.title = title

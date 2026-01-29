@@ -3,10 +3,10 @@ Upload service for publishing reports to MDWiki.
 
 This module handles uploading all generated WikiText reports to mdwiki.org.
 """
-import logging
+
 import os
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Dict, List
 
 from src.config import OUTPUT_DIRS
 from src.logging_config import get_logger
@@ -167,15 +167,13 @@ class ReportUploader:
             result = page.save(content, summary)
 
             logger.info("Upload successful")
-            return True
+            return result
 
         except Exception as e:
             logger.error("Failed to upload to %s: %s", page_title, e)
             return False
 
-    def upload_single_report(
-        self, lang: str, year: str, is_global: bool = False
-    ) -> bool:
+    def upload_single_report(self, lang: str, year: str, is_global: bool = False) -> bool:
         """
         Upload a single report by language code.
 
