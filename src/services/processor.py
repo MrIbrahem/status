@@ -49,19 +49,20 @@ class EditorProcessor:
         logger.debug("Processing %d titles for year %s", len(titles), year)
 
         editors: Dict[str, int] = {}
+        params = []
 
         # Special handling for Arabic and English
         if lang == "ar":
-            query = self.query_builder.get_editors_arabic(year)
+            query, params = self.query_builder.get_editors_arabic(year)
         elif lang == "en":
-            query = self.query_builder.get_editors_english(year)
+            query, params = self.query_builder.get_editors_english(year)
         else:
             # Standard query for other languages
-            query = self.query_builder.get_editors_standard(titles, year)
+            query, params = self.query_builder.get_editors_standard(titles, year)
 
         try:
             with DatabaseAnalytics(lang) as db:
-                results = db.execute(query)
+                results = db.execute(query, params=params)
 
                 for row in results:
                     actor_name = row.get("actor_name", "")

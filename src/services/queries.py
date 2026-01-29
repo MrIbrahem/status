@@ -63,7 +63,7 @@ class QueryBuilder:
         """
 
     @staticmethod
-    def get_editors_standard(titles: List[str], year: str) -> str:
+    def get_editors_standard(titles: List[str], year: str) -> tuple[str, List[str]]:
         """
         Get editor statistics for given titles (standard languages).
 
@@ -94,10 +94,10 @@ class QueryBuilder:
               AND LOWER(CAST(actor_name AS CHAR)) NOT LIKE '%bot%'
             GROUP BY actor_id
             ORDER BY count DESC
-        """
+        """, []
 
     @staticmethod
-    def get_editors_arabic(year: str) -> str:
+    def get_editors_arabic(year: str) -> tuple[str, List[str]]:
         """
         Get editor statistics for Arabic Wikipedia Medicine project.
 
@@ -126,10 +126,10 @@ class QueryBuilder:
             GROUP BY actor_id
             ORDER BY count DESC
             LIMIT 100
-        """
+        """, []
 
     @staticmethod
-    def get_editors_english(year: str) -> str:
+    def get_editors_english(year: str) -> tuple[str, List[str]]:
         """
         Get editor statistics for English Wikipedia Medicine project.
 
@@ -171,4 +171,4 @@ class QueryBuilder:
             GROUP BY actor_id
             ORDER BY count DESC
             LIMIT 100
-        """
+        """, []
