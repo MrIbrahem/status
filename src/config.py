@@ -28,15 +28,15 @@ CREDENTIAL_FILE = os.path.expanduser(CREDENTIAL_FILE)
 HOST: str = os.getenv("DB_HOST", "analytics.db.svc.wikimedia.cloud")
 DATABASE_PORT: int = int(os.getenv("DB_PORT", 3306))
 
-DATA_DIR = os.getenv("DATA_DIR", "~/data")
-DATA_DIR = Path(DATA_DIR).expanduser()
+STATUS_DATA_DIR = os.getenv("STATUS_DATA_DIR", "~/data")
+STATUS_DATA_DIR = Path(STATUS_DATA_DIR).expanduser()
 
 # Output directories
 OUTPUT_DIRS: Dict[str, Path] = {
-    "sqlresults": DATA_DIR / "sqlresults",
-    "languages": DATA_DIR / "languages",
-    "editors": DATA_DIR / "editors",
-    "reports": DATA_DIR / "reports",
+    "sqlresults": STATUS_DATA_DIR / "sqlresults",
+    "languages": STATUS_DATA_DIR / "languages",
+    "editors": STATUS_DATA_DIR / "editors",
+    "reports": STATUS_DATA_DIR / "reports",
 }
 
 # Ensure output directories exist

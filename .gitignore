@@ -21,6 +21,7 @@ dmypy.json
 # Backup files
 *.bak
 *.tmp
-/data/reports
-/data/languages
-/data/sqlresults
+/STATUS_DATA/reports
+/STATUS_DATA/languages
+STATUS_DATA/sqlresults/medicine_titles.json
+STATUS_DATA/sqlresults/medicine_titles_1.json
