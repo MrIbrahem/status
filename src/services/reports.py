@@ -36,7 +36,9 @@ def work_all_editors(editors, last_year) -> str:
         user = user.replace("_", " ")
         # #{{#target:User:{User}|{wiki}.wikipedia.org}}
         targets += f"#{{{{#target:User:{user}|{wiki}.wikipedia.org}}}}\n"
-        txt_table += f"|-\n" f"!{i}\n" f"|[[:w:{wiki}:user:{user}|{user}]]\n" f"|{count:,}\n" f"|{wiki}\n" f"|{count_global:,}\n"
+        txt_table += (
+            f"|-\n" f"!{i}\n" f"|[[:w:{wiki}:user:{user}|{user}]]\n" f"|{count:,}\n" f"|{wiki}\n" f"|{count_global:,}\n"
+        )
         if count < 10:
             break
 
@@ -179,7 +181,7 @@ class ReportGenerator:
             all_editors_status[editor] = {
                 "count": editor_most_wiki[1],
                 "site": editor_most_wiki[0],
-                "count_global": count
+                "count_global": count,
             }
 
         all_editors_status = dict(sorted(all_editors_status.items(), key=lambda x: x[1]["count"], reverse=True))
