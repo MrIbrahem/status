@@ -47,3 +47,8 @@ class TestQueryBuilder:
         assert "actor_name" in query
         assert "WikiProject_Medicine" in query
         assert year in params
+
+    def test_get_editors_standard_empty_titles(self):
+        """Test get_editors_standard with empty titles list."""
+        with pytest.raises(ValueError, match="Titles list cannot be empty"):
+            QueryBuilder.get_editors_standard([], "2024")
