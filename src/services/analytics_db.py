@@ -31,7 +31,7 @@ class DatabaseAnalytics:
         database, host = self.get_database_info(site_code)
         self.database = database
         self.host = host
-        self.db = Database(host, database, timeout=timeout)
+        self.db = None
 
     def get_database_info(self, site_code: str) -> tuple[str, str]:
         pre_defined_db_mapping = {
@@ -57,6 +57,7 @@ class DatabaseAnalytics:
         Returns:
             Database instance
         """
+        self.db = Database(self.host, self.database, timeout=self.timeout)
         return self.db.__enter__()
 
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:
