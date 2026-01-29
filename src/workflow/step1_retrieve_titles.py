@@ -6,9 +6,8 @@ from typing import Any, Dict, List
 
 from ..config import OUTPUT_DIRS
 from ..logging_config import get_logger
-from ..services import QueryBuilder
+from ..services import DatabaseAnalytics, QueryBuilder
 from ..utils import save_language_titles, save_titles_sql_results
-from .analytics_db import DatabaseAnalytics
 
 logger = get_logger(__name__)
 

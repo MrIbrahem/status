@@ -1,3 +1,4 @@
+from .analytics_db import DatabaseAnalytics
 from .database import Database
 from .processor import EditorProcessor
 from .queries import QueryBuilder
@@ -8,4 +9,5 @@ __all__ = [
     "EditorProcessor",
     "QueryBuilder",
     "ReportGenerator",
+    "DatabaseAnalytics",
 ]

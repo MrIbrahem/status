@@ -7,7 +7,7 @@ from typing import Dict, List, Optional
 from ..config import OUTPUT_DIRS
 from ..logging_config import get_logger
 from ..services import EditorProcessor, QueryBuilder, ReportGenerator
-from .db_mapping import get_database_mapping
+from ..services.db_mapping import get_database_mapping
 from .step1_retrieve_titles import retrieve_medicine_titles
 from .step2_process_languages import process_languages
 from .step3_generate_reports import generate_reports

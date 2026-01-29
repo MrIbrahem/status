@@ -7,7 +7,8 @@ from typing import Dict
 
 from ..config import OUTPUT_DIRS
 from ..logging_config import get_logger
-from ..services import Database, QueryBuilder
+from .database import Database
+from .queries import QueryBuilder
 
 logger = get_logger(__name__)
 

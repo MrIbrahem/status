@@ -9,7 +9,7 @@ from typing import Dict, List
 
 from ..logging_config import get_logger
 from ..utils import is_ip_address
-from ..workflow.analytics_db import DatabaseAnalytics
+from .analytics_db import DatabaseAnalytics
 from .queries import QueryBuilder
 
 logger = get_logger(__name__)
