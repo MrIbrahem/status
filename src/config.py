@@ -39,6 +39,10 @@ OUTPUT_DIRS: Dict[str, Path] = {
     "reports": DATA_DIR / "reports",
 }
 
+# Ensure output directories exist
+for _, dir_path in OUTPUT_DIRS.items():
+    Path(dir_path).mkdir(parents=True, exist_ok=True)
+
 # Logging
 LOG_LEVEL: str = "INFO"
 LOG_FILE: str = None

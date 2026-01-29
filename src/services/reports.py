@@ -12,7 +12,7 @@ from typing import Dict
 
 from ..config import OUTPUT_DIRS
 from ..logging_config import get_logger
-from ..utils import ensure_directory, format_number
+from ..utils import format_number
 
 logger = get_logger(__name__)
 
@@ -27,13 +27,7 @@ class ReportGenerator:
 
     def __init__(self):
         """Initialize the report generator."""
-        self._ensure_output_directories()
         logger.debug("ReportGenerator initialized")
-
-    def _ensure_output_directories(self) -> None:
-        """Ensure all output directories exist."""
-        for dir_name, dir_path in OUTPUT_DIRS.items():
-            ensure_directory(dir_path)
 
     def save_editors_json(self, lang: str, editors: Dict[str, int]) -> None:
         """

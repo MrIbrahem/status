@@ -76,23 +76,6 @@ def format_number(num: int) -> str:
     return f"{num:,}"
 
 
-def ensure_directory(path: str) -> None:
-    """
-    Ensure directory exists, create if not.
-
-    Args:
-        path: Directory path to ensure
-
-    Raises:
-        OSError: If directory cannot be created
-
-    Example:
-        >>> ensure_directory("output/reports")
-    """
-    Path(path).mkdir(parents=True, exist_ok=True)
-    logger.info("Created directory: %s", path)
-
-
 def save_language_titles(lang: str, titles: List[str], output_dir: str = "languages") -> None:
     """
     Save article titles for a language to JSON file.
@@ -105,7 +88,6 @@ def save_language_titles(lang: str, titles: List[str], output_dir: str = "langua
     Example:
         >>> save_language_titles("en", ["Medicine", "Health"], "languages")
     """
-    ensure_directory(output_dir)
     output_file = Path(output_dir) / f"{lang}.json"
 
     with open(output_file, "w", encoding="utf-8") as f:
@@ -118,7 +100,6 @@ def save_titles_sql_results(titles: List[str], output_dir: Path) -> None:
     """
     Save article titles for a language to SQL results file.
     """
-    ensure_directory(output_dir)
     output_file = Path(output_dir) / "medicine_titles.json"
     try:
         with open(output_file, "w", encoding="utf-8") as f:
