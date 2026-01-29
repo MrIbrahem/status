@@ -70,6 +70,24 @@ class DatabaseUtils:
             dbname += "_p"
         return dbname
 
+    def resolve_bytes(self, data: Any) -> Any:
+        """
+        Recursively convert bytes in data structures to strings.
+
+        Args:
+            data: Input data (could be dict, list, bytes, or other types)
+
+        Returns:
+            The input data with all byte strings converted to regular strings
+        """
+        if isinstance(data, dict):
+            return {self.resolve_bytes(key): self.resolve_bytes(value) for key, value in data.items()}
+        elif isinstance(data, list):
+            return [self.resolve_bytes(item) for item in data]
+        elif isinstance(data, bytes):
+            return data.decode("utf-8", errors="replace")
+        return data
+
 
 class Database(DatabaseUtils):
     """
@@ -230,7 +248,7 @@ class Database(DatabaseUtils):
                 cursor.execute(query, params)
                 results = cursor.fetchall()
                 logger.debug("Query returned %d rows", len(results))
-                return results
+                return self.resolve_bytes(results)
 
         except pymysql.err.ProgrammingError as e:
             logger.error("Query syntax error: %s\nQuery: %s", str(e), query[:200])
