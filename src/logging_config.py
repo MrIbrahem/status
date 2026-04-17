@@ -9,16 +9,21 @@ import os
 import colorlog
 
 
-def prepare_log_file(log_file, project_logger):
-    log_file = os.path.expandvars(str(log_file))
-    log_file = Path(log_file).expanduser()
-    
+def prepare_log_file(log_file: str | None, project_logger: logging.Logger) -> Path | None:
+    """
+    Prepare the log file path and create parent directories if needed.
+    """
+    if not log_file:
+        return None
+    log_file_path = os.path.expandvars(str(log_file))
+    log_file_path = Path(log_file_path).expanduser()
+
     try:
-        log_file.parent.mkdir(parents=True, exist_ok=True)
+        log_file_path.parent.mkdir(parents=True, exist_ok=True)
     except Exception as e:
         project_logger.error(f"Failed to create log directory: {e}")
-        log_file = None
-    return log_file
+        log_file_path = None
+    return log_file_path
 
 
 def setup_logging(
